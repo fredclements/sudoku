@@ -194,39 +194,68 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
+            margin-top: 5px;
         }
 
         .keypad {
             display: grid;
-            grid-template-columns: repeat(9, 1fr);
-            gap: 5px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            width: 100%;
         }
 
         .key-btn {
             background: var(--bg-color);
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            aspect-ratio: 1;
+            border-radius: 8px;
+            padding: 8px 4px;
+            min-height: 50px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
-            font-weight: 600;
             cursor: pointer;
             color: var(--text-color);
-            transition: all 0.1s;
+            transition: all 0.15s ease;
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        .key-btn .num {
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.1;
         }
 
         .key-btn span.count {
-            font-size: 0.55rem;
+            font-size: 0.65rem;
             color: #94a3b8;
-            font-weight: 400;
+            font-weight: 500;
+            margin-top: 2px;
         }
 
         .key-btn:hover {
             background: var(--border-color);
+            transform: translateY(-1px);
+        }
+
+        .key-btn:active {
+            transform: translateY(0);
+        }
+
+        .key-btn.erase-btn {
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+
+        .key-btn.erase-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #f87171;
+        }
+
+        .key-btn.erase-btn span.count {
+            color: #fca5a5;
         }
 
         .palette {
@@ -360,10 +389,17 @@
             for (let i = 1; i <= 9; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'key-btn';
-                btn.innerHTML = `${i}<span class="count" id="count-${i}">9</span>`;
+                btn.innerHTML = `<span class="num">${i}</span><span class="count" id="count-${i}">9</span>`;
                 btn.addEventListener('click', () => handleKeyInput(i));
                 keypadEl.appendChild(btn);
             }
+            // 10th button: Erase slot completing the 5x2 grid
+            const eraseBtn = document.createElement('button');
+            eraseBtn.className = 'key-btn erase-btn';
+            eraseBtn.innerHTML = `<span class="num">⌫</span><span class="count">Erase</span>`;
+            eraseBtn.title = "Erase number / notes";
+            eraseBtn.addEventListener('click', clearSelection);
+            keypadEl.appendChild(eraseBtn);
         }
 
         function newGame() {

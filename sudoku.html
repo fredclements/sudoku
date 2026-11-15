@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <title>Advanced Sudoku with Chain Highlighting</title>
     <style>
         :root {
@@ -40,28 +46,34 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
+            min-height: 100dvh;
+            margin: 0;
+            padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding: 20px;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
         }
 
         header {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             text-align: center;
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .controls-bar {
             display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
+            gap: 8px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
             justify-content: center;
             width: 100%;
@@ -71,11 +83,12 @@
             background-color: var(--card-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            padding: 8px 14px;
+            padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.85rem;
             transition: all 0.2s;
+            touch-action: manipulation;
         }
 
         button:hover, select:hover {
@@ -92,13 +105,204 @@
             flex-direction: column;
             align-items: center;
             background: var(--card-bg);
-            padding: 20px;
+            padding: 16px;
             border-radius: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-            max-width: 450px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            max-width: 500px;
             width: 100%;
+            transition: all 0.2s ease;
         }
 
+        .game-content-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            gap: 12px;
+        }
+
+        .board-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* MOBILE OPTIMIZATIONS (Pixel phone, smartphone) */
+        @media (max-width: 600px) {
+            body {
+                padding: max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left));
+            }
+
+            header {
+                margin-bottom: 4px;
+            }
+
+            h1 {
+                font-size: 1.15rem;
+            }
+
+            .game-container {
+                padding: 6px 4px;
+                border-radius: 8px;
+                max-width: 100%;
+                width: 100%;
+                box-shadow: none;
+                background: transparent;
+            }
+
+            .controls-bar {
+                gap: 5px;
+                margin-bottom: 6px;
+            }
+
+            select, button {
+                padding: 6px 9px;
+                font-size: 0.76rem;
+            }
+
+            .mode-indicators {
+                font-size: 0.72rem;
+                gap: 4px;
+                margin-bottom: 6px;
+            }
+
+            .mode-indicators span {
+                padding: 2px 6px;
+            }
+
+            .board {
+                width: min(96vw, 380px) !important;
+                margin-bottom: 6px;
+            }
+
+            .cell .cell-val {
+                font-size: 1.05rem;
+            }
+
+            .keypad {
+                gap: 5px;
+            }
+
+            .key-btn {
+                min-height: 44px;
+                padding: 3px 2px;
+            }
+
+            .key-btn .num {
+                font-size: 1.15rem;
+            }
+
+            .key-btn span.count {
+                font-size: 0.58rem;
+            }
+
+            .notes-controls-panel {
+                padding: 6px 8px;
+                gap: 6px;
+            }
+
+            .mode-btn {
+                padding: 5px 8px;
+                font-size: 0.78rem;
+            }
+
+            .note-type-toggle {
+                padding-top: 4px;
+            }
+
+            .pill-toggle-btn {
+                padding: 3px 8px;
+                font-size: 0.7rem;
+            }
+
+            .palette {
+                gap: 6px;
+                margin-top: 2px;
+            }
+
+            .color-btn {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        /* TABLET PORTRAIT (Pixel Tablet portrait) */
+        @media (min-width: 601px) and (max-width: 1024px) and (orientation: portrait) {
+            .game-container {
+                max-width: 680px;
+                padding: 22px;
+            }
+
+            .board {
+                max-width: 600px;
+            }
+
+            .cell .cell-val {
+                font-size: 1.45rem;
+            }
+
+            .key-btn {
+                min-height: 56px;
+            }
+
+            .key-btn .num {
+                font-size: 1.35rem;
+            }
+        }
+
+        /* TABLET LANDSCAPE / WIDESCREEN (Pixel Tablet landscape) */
+        @media (min-width: 768px) and (orientation: landscape) {
+            body {
+                justify-content: center;
+                padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+            }
+
+            header {
+                display: none;
+            }
+
+            .game-container {
+                max-width: 1050px;
+                width: 98vw;
+                padding: 12px 18px;
+                max-height: 98dvh;
+            }
+
+            .controls-bar {
+                margin-bottom: 6px;
+                justify-content: space-between;
+            }
+
+            .mode-indicators {
+                margin-bottom: 8px;
+            }
+
+            .game-content-layout {
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 24px;
+                width: 100%;
+            }
+
+            .board-wrapper {
+                flex: 1.15;
+                max-width: min(74vh, 560px);
+            }
+
+            .board {
+                width: 100%;
+                margin-bottom: 0;
+            }
+
+            .keypad-container {
+                flex: 0.85;
+                max-width: 440px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
         .mode-indicators {
             display: flex;
             gap: 8px;
@@ -478,10 +682,11 @@
                 <option value="hard">Hard (~26 Clues)</option>
                 <option value="expert">Expert (~24 Clues)</option>
             </select>
-            <button onclick="generateNewUnlimited()" title="Instantly generate an infinite new puzzle">✨ New Puzzle (Unlimited)</button>
-            <button onclick="nextCatalogPuzzle()" title="Play from the curated 25-puzzle catalog">Catalog (#<span id="puzzle-num">1</span>/25)</button>
-            <button onclick="toggleMode('color')" id="mode-color-btn">Highlight Color</button>
+            <button onclick="generateNewUnlimited()" title="Instantly generate an infinite new puzzle">✨ New Puzzle</button>
+            <button onclick="nextCatalogPuzzle()" title="Play from the curated catalog">Catalog (#<span id="puzzle-num">1</span>/25)</button>
+            <button onclick="toggleMode('color')" id="mode-color-btn">Color</button>
             <button onclick="restartGame()">Reset</button>
+            <button onclick="toggleFullscreen()" id="fs-btn" title="Toggle Fullscreen for Mobile and Tablet">⛶ Fullscreen</button>
         </div>
 
         <div class="mode-indicators">
@@ -492,10 +697,13 @@
             <span id="error-status" style="display:none; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); font-weight: 600;"></span>
         </div>
 
-        <!-- 9x9 Sudoku Board -->
-        <div class="board" id="sudoku-board"></div>
+        <div class="game-content-layout">
+            <!-- 9x9 Sudoku Board -->
+            <div class="board-wrapper">
+                <div class="board" id="sudoku-board"></div>
+            </div>
 
-        <div class="keypad-container">
+            <div class="keypad-container">
             <!-- 5x2 Keypad: 1-5 top row, 6-9 + Erase bottom row -->
             <div class="keypad" id="keypad"></div>
 
@@ -533,6 +741,7 @@
                 <div class="color-btn clear" onclick="selectColor(null)" title="Remove Color">✕</div>
             </div>
         </div>
+    </div>
     </div>
 
     <script>
@@ -706,6 +915,51 @@
             }
             solve();
             return s;
+        }
+
+
+        // Fullscreen API Support for Mobile & Tablet
+        function toggleFullscreen() {
+            const doc = document;
+            const docEl = document.documentElement;
+            const isFullscreen = doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement;
+
+            if (!isFullscreen) {
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen().catch(err => console.log(err));
+                } else if (docEl.webkitRequestFullscreen) {
+                    docEl.webkitRequestFullscreen();
+                } else if (docEl.msRequestFullscreen) {
+                    docEl.msRequestFullscreen();
+                }
+            } else {
+                if (doc.exitFullscreen) {
+                    doc.exitFullscreen().catch(err => console.log(err));
+                } else if (doc.webkitExitFullscreen) {
+                    doc.webkitExitFullscreen();
+                } else if (doc.msExitFullscreen) {
+                    doc.msExitFullscreen();
+                }
+            }
+        }
+
+        function updateFullscreenBtn() {
+            const fsBtn = document.getElementById('fs-btn');
+            if (fsBtn) {
+                const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+                fsBtn.innerText = isFs ? '🗗 Exit' : '⛶ Fullscreen';
+                fsBtn.classList.toggle('active', isFs);
+            }
+        }
+
+        document.addEventListener('fullscreenchange', updateFullscreenBtn);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
+
+        // Register Service Worker for PWA (Installable on Pixel Phone & Tablet)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
         }
 
         function initGame() {

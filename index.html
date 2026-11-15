@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Sudoku with Chain Highlighting</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --border-color: #475569;
+            --cell-bg: #0f172a;
+            --cell-selected: #334155;
+            --cell-highlight: #1e3a8a55;
+            --given-color: #e2e8f0;
+            --input-color: #60a5fa;
+            
+            /* Highlighting Colors */
+            --color-yellow: #fef08a;
+            --color-green: #bbf7d0;
+            --color-blue: #bfdbfe;
+            --color-pink: #fbcfe8;
+            --color-purple: #e9d5ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .controls-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        select, button {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        button:hover, select:hover {
+            background-color: var(--border-color);
+        }
+
+        button.active {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            width: 100%;
+            aspect-ratio: 1;
+            border: 3px solid var(--text-color);
+            background-color: var(--text-color);
+            gap: 1px;
+            margin-bottom: 15px;
+        }
+
+        .cell {
+            background-color: var(--cell-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: background-color 0.1s;
+        }
+
+        .cell.given {
+            color: var(--given-color);
+            font-weight: 700;
+        }
+
+        .cell.user-input {
+            color: var(--input-color);
+        }
+
+        .cell.selected {
+            background-color: var(--cell-selected) !important;
+        }
+
+        .cell.highlighted {
+            background-color: var(--cell-highlight);
+        }
+
+        .cell.error {
+            color: #f87171 !important;
+            background-color: rgba(239, 68, 68, 0.2) !important;
+        }
+
+        /* Thick borders for 3x3 subgrids */
+        .cell:nth-child(3n) { border-right: 2px solid var(--text-color); }
+        .cell:nth-child(9n) { border-right: none; }
+        .cell:nth-last-child(-n+9):not(:nth-last-child(-n+18)) { border-bottom: 2px solid var(--text-color); }
+        .cell:nth-child(n-19):nth-child(-n-27),
+        .cell:nth-child(n-46):nth-child(-n-54) { border-bottom: 2px solid var(--text-color); }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 2px;
+            font-size: 0.45rem;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .note-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mode-indicators {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .mode-indicators span {
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .mode-indicators span.active-mode {
+            border-color: var(--accent-color);
+            color: var(--text-color);
+        }
+
+        /* Keypad & Color Palette */
+        .keypad-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 5px;
+        }
+
+        .key-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.1s;
+        }
+
+        .key-btn span.count {
+            font-size: 0.55rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .key-btn:hover {
+            background: var(--border-color);
+        }
+
+        .palette {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        .color-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .color-btn.yellow { background-color: var(--color-yellow); }
+        .color-btn.green { background-color: var(--color-green); }
+        .color-btn.blue { background-color: var(--color-blue); }
+        .color-btn.pink { background-color: var(--color-pink); }
+        .color-btn.purple { background-color: var(--color-purple); }
+        .color-btn.clear { background-color: var(--card-bg); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Sudoku Solver & Chain Analyzer</h1>
+    </header>
+
+    <div class="game-container">
+        <div class="controls-bar">
+            <select id="difficulty" onchange="newGame()">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+                <option value="expert">Expert</option>
+            </select>
+            <button onclick="toggleMode('number')" id="mode-num-btn" class="active">Number Mode</button>
+            <button onclick="toggleMode('note')" id="mode-note-btn">Pencil Notes</button>
+            <button onclick="toggleMode('color')" id="mode-color-btn">Color Mode</button>
+            <button onclick="clearSelection()">Clear</button>
+        </div>
+
+        <div class="mode-indicators">
+            <span>Mode: <strong id="current-mode-label">Number</strong></span>
+            <span>Active Color: <strong id="current-color-label">None</strong></span>
+        </div>
+
+        <div class="board" id="sudoku-board"></div>
+
+        <div class="keypad-container">
+            <div class="keypad" id="keypad">
+                <!-- Generated via JS with remaining count -->
+            </div>
+            <div class="palette">
+                <div class="color-btn yellow" onclick="selectColor('yellow')" title="Highlight Yellow"></div>
+                <div class="color-btn green" onclick="selectColor('green')" title="Highlight Green"></div>
+                <div class="color-btn blue" onclick="selectColor('blue')" title="Highlight Blue"></div>
+                <div class="color-btn pink" onclick="selectColor('pink')" title="Highlight Pink"></div>
+                <div class="color-btn purple" onclick="selectColor('purple')" title="Highlight Purple"></div>
+                <div class="color-btn clear" onclick="selectColor(null)" title="Remove Color">✕</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let board = Array(81).fill(0);
+        let solution = Array(81).fill(0);
+        let given = Array(81).fill(false);
+        let notes = Array(81).fill().map(() => new Set());
+        let colors = Array(81).fill(null);
+        
+        let selectedCell = null;
+        let inputMode = 'number'; // 'number', 'note', 'color'
+        let activeColor = 'yellow';
+
+        // Color map hex values for backgrounds
+        const colorHexMap = {
+            'yellow': 'var(--color-yellow)',
+            'green': 'var(--color-green)',
+            'blue': 'var(--color-blue)',
+            'pink': 'var(--color-pink)',
+            'purple': 'var(--color-purple)'
+        };
+
+        const puzzles = {
+            easy: "530070000600195000098000060800060003400803001700020006060000280000419005000080079",
+            medium: "000260701680070090190004500820100040004602900050003028009300074040050036703018000",
+            hard: "000000000000003085001020000000507000004001020020000000000004027500000000000000000",
+            expert: "000000000000030850010200000000507000004001020020000000000004027500000000000000000" // Fallback sample
+        };
+
+        function initGame() {
+            createBoardDOM();
+            createKeypadDOM();
+            newGame();
+        }
+
+        function createBoardDOM() {
+            const boardEl = document.getElementById('sudoku-board');
+            boardEl.innerHTML = '';
+            for (let i = 0; i < 81; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => selectCellIndex(i));
+                
+                const notesGrid = document.createElement('div');
+                notesGrid.className = 'notes-grid';
+                for (let n = 1; n <= 9; n++) {
+                    const noteCell = document.createElement('div');
+                    noteCell.className = 'note-cell';
+                    noteCell.dataset.note = n;
+                    notesGrid.appendChild(noteCell);
+                }
+                cell.appendChild(notesGrid);
+                boardEl.appendChild(cell);
+            }
+        }
+
+        function createKeypadDOM() {
+            const keypadEl = document.getElementById('keypad');
+            keypadEl.innerHTML = '';
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'key-btn';
+                btn.innerHTML = `${i}<span class="count" id="count-${i}">9</span>`;
+                btn.addEventListener('click', () => handleKeyInput(i));
+                keypadEl.appendChild(btn);
+            }
+        }
+
+        function newGame() {
+            const diff = document.getElementById('difficulty').value;
+            let sample = puzzles[diff] || puzzles.medium;
+            
+            // Simple parser for seed puzzle string
+            board = sample.split('').map(Number);
+            given = board.map(val => val !== 0);
+            solution = [...board]; // Placeholder solution sync
+            notes = Array(81).fill().map(() => new Set());
+            colors = Array(81).fill(null);
+            selectedCell = null;
+            
+            updateBoardDOM();
+            updateKeypadCounts();
+        }
+
+        function selectCellIndex(index) {
+            selectedCell = index;
+            updateBoardDOM();
+        }
+
+        function toggleMode(mode) {
+            inputMode = mode;
+            document.getElementById('mode-num-btn').classList.toggle('active', mode === 'number');
+            document.getElementById('mode-note-btn').classList.toggle('active', mode === 'note');
+            document.getElementById('mode-color-btn').classList.toggle('active', mode === 'color');
+            document.getElementById('current-mode-label').innerText = mode.charAt(0).toUpperCase() + mode.slice(1);
+        }
+
+        function selectColor(color) {
+            activeColor = color;
+            inputMode = 'color';
+            toggleMode('color');
+            document.getElementById('current-color-label').innerText = color ? color.toUpperCase() : 'None';
+        }
+
+        function handleKeyInput(num) {
+            if (selectedCell === null || given[selectedCell]) return;
+
+            if (inputMode === 'number') {
+                board[selectedCell] = board[selectedCell] === num ? 0 : num;
+                notes[selectedCell].clear(); // Clear notes when entering digit
+            } else if (inputMode === 'note') {
+                if (board[selectedCell] === 0) {
+                    if (notes[selectedCell].has(num)) {
+                        notes[selectedCell].delete(num);
+                    } else {
+                        notes[selectedCell].add(num);
+                    }
+                }
+            }
+            updateBoardDOM();
+            updateKeypadCounts();
+        }
+
+        function clearSelection() {
+            if (selectedCell === null || given[selectedCell]) return;
+            if (inputMode === 'color') {
+                colors[selectedCell] = null;
+            } else {
+                board[selectedCell] = 0;
+                notes[selectedCell].clear();
+            }
+            updateBoardDOM();
+            updateKeypadCounts();
+        }
+
+        function updateBoardDOM() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, i) => {
+                // Reset classes
+                cell.className = 'cell';
+                if (given[i]) cell.classList.add('given');
+                else if (board[i] !== 0) cell.classList.add('user-input');
+                
+                if (i === selectedCell) cell.classList.add('selected');
+
+                // Apply coloring
+                if (colors[i]) {
+                    cell.style.backgroundColor = colorHexMap[colors[i]];
+                    cell.style.color = '#0f172a';
+                } else {
+                    cell.style.backgroundColor = '';
+                    cell.style.color = '';
+                }
+
+                // Render Value or Notes
+                const valueSpan = cell.querySelector('.cell-val') || document.createElement('span');
+                valueSpan.className = 'cell-val';
+                valueSpan.innerText = board[i] !== 0 ? board[i] : '';
+                if (!cell.contains(valueSpan)) cell.appendChild(valueSpan);
+
+                // Render Notes
+                const notesGrid = cell.querySelector('.notes-grid');
+                const noteCells = notesGrid.querySelectorAll('.note-cell');
+                noteCells.forEach(nc => {
+                    const n = parseInt(nc.dataset.note);
+                    nc.innerText = (board[i] === 0 && notes[i].has(n)) ? n : '';
+                });
+            });
+        }
+
+        function updateKeypadCounts() {
+            let counts = Array(10).fill(9);
+            board.forEach(val => {
+                if (val >= 1 && val <= 9) counts[val]--;
+            });
+
+            for (let i = 1; i <= 9; i++) {
+                const countEl = document.getElementById(`count-${i}`);
+                if (countEl) {
+                    countEl.innerText = counts[i];
+                    countEl.style.opacity = counts[i] === 0 ? '0.3' : '1';
+                }
+            }
+        }
+
+        // Handle physical keyboard input
+        window.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '9') {
+                handleKeyInput(parseInt(e.key));
+            } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                clearSelection();
+            }
+        });
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>

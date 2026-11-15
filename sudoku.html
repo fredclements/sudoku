@@ -13,10 +13,13 @@
             --accent-hover: #2563eb;
             --border-color: #475569;
             --cell-bg: #0f172a;
+            --cell-alt: #141f36;
             --cell-selected: #334155;
             --cell-highlight: #1e3a8a55;
             --given-color: #e2e8f0;
             --input-color: #60a5fa;
+            --grid-line-thick: #f8fafc;
+            --grid-line-thin: #334155;
             
             /* Highlighting Colors */
             --color-yellow: #fef08a;
@@ -98,12 +101,13 @@
 
         .mode-indicators {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 12px;
             font-size: 0.82rem;
             color: #94a3b8;
             flex-wrap: wrap;
             justify-content: center;
+            align-items: center;
         }
 
         .mode-indicators span {
@@ -111,17 +115,22 @@
             border-radius: 4px;
             background: var(--bg-color);
             border: 1px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
         }
 
+        /* 9x9 Sudoku Board with Clear 3x3 Block Boundaries */
         .board {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
             width: 100%;
             aspect-ratio: 1;
-            border: 3px solid var(--text-color);
-            background-color: var(--text-color);
-            gap: 1px;
+            border: 3.5px solid var(--grid-line-thick);
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: var(--cell-bg);
             margin-bottom: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
         .cell {
@@ -133,9 +142,34 @@
             user-select: none;
             position: relative;
             transition: background-color 0.1s;
+            border-right: 1px solid var(--grid-line-thin);
+            border-bottom: 1px solid var(--grid-line-thin);
+            box-sizing: border-box;
         }
 
-        /* Scaled slightly smaller for a clean, non-crowded appearance */
+        /* Subtle alternating block shading for instant 3x3 pattern recognition */
+        .cell.block-alt {
+            background-color: var(--cell-alt);
+        }
+
+        /* Prominent thick 3x3 block boundary dividers */
+        .cell.border-right-thick {
+            border-right: 3px solid var(--grid-line-thick) !important;
+        }
+
+        .cell.border-bottom-thick {
+            border-bottom: 3px solid var(--grid-line-thick) !important;
+        }
+
+        .cell.border-right-none {
+            border-right: none !important;
+        }
+
+        .cell.border-bottom-none {
+            border-bottom: none !important;
+        }
+
+        /* Cell Numbers */
         .cell .cell-val {
             font-size: 1.15rem;
             font-weight: 600;
@@ -161,17 +195,22 @@
             background-color: var(--cell-highlight);
         }
 
+        /* Error States in Vibrant Red */
         .cell.error {
-            color: #f87171 !important;
-            background-color: rgba(239, 68, 68, 0.2) !important;
+            background-color: rgba(239, 68, 68, 0.25) !important;
         }
 
-        /* Thick borders for 3x3 subgrids */
-        .cell:nth-child(3n) { border-right: 2px solid var(--text-color); }
-        .cell:nth-child(9n) { border-right: none; }
-        .cell:nth-last-child(-n+9):not(:nth-last-child(-n+18)) { border-bottom: 2px solid var(--text-color); }
-        .cell:nth-child(n-19):nth-child(-n-27),
-        .cell:nth-child(n-46):nth-child(-n-54) { border-bottom: 2px solid var(--text-color); }
+        .cell.error .cell-val {
+            color: #ef4444 !important;
+            font-weight: 700 !important;
+            text-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
+        }
+
+        .cell.error.selected {
+            background-color: rgba(239, 68, 68, 0.4) !important;
+            outline: 2px solid #ef4444;
+            outline-offset: -2px;
+        }
 
         /* Snyder (Corner/Edge) Notes Grid (3x3) */
         .corner-notes-grid {
@@ -445,8 +484,9 @@
         </div>
 
         <div class="mode-indicators">
-            <span>Input: <strong id="current-mode-label">Normal (Numbers)</strong></span>
-            <span>Highlight: <strong id="current-color-label">None</strong></span>
+            <span>Input: <strong id="current-mode-label" style="margin-left: 4px;">Normal (Numbers)</strong></span>
+            <span>Highlight: <strong id="current-color-label" style="margin-left: 4px;">None</strong></span>
+            <span id="error-status" style="display:none; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); font-weight: 600;"></span>
         </div>
 
         <!-- 9x9 Sudoku Board -->
@@ -521,6 +561,38 @@
             expert: "000000000000030850010200000000507000004001020020000000000004027500000000000000000"
         };
 
+        function solveSudoku(grid) {
+            const s = [...grid];
+            function isValid(idx, num) {
+                const r = Math.floor(idx / 9);
+                const c = idx % 9;
+                const br = Math.floor(r / 3) * 3;
+                const bc = Math.floor(c / 3) * 3;
+                for (let i = 0; i < 9; i++) {
+                    if (s[r * 9 + i] === num) return false;
+                    if (s[i * 9 + c] === num) return false;
+                    const bi = br + Math.floor(i / 3);
+                    const bj = bc + (i % 3);
+                    if (s[bi * 9 + bj] === num) return false;
+                }
+                return true;
+            }
+            function solve(idx = 0) {
+                if (idx === 81) return true;
+                if (s[idx] !== 0) return solve(idx + 1);
+                for (let num = 1; num <= 9; num++) {
+                    if (isValid(idx, num)) {
+                        s[idx] = num;
+                        if (solve(idx + 1)) return true;
+                        s[idx] = 0;
+                    }
+                }
+                return false;
+            }
+            solve();
+            return s;
+        }
+
         function initGame() {
             createBoardDOM();
             createKeypadDOM();
@@ -534,6 +606,29 @@
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.dataset.index = i;
+                
+                const row = Math.floor(i / 9);
+                const col = i % 9;
+                const block = Math.floor(row / 3) * 3 + Math.floor(col / 3);
+
+                // Alternating block shading
+                if (block % 2 === 0) {
+                    cell.classList.add('block-alt');
+                }
+
+                // Distinct 3x3 block borders
+                if (col === 2 || col === 5) {
+                    cell.classList.add('border-right-thick');
+                } else if (col === 8) {
+                    cell.classList.add('border-right-none');
+                }
+
+                if (row === 2 || row === 5) {
+                    cell.classList.add('border-bottom-thick');
+                } else if (row === 8) {
+                    cell.classList.add('border-bottom-none');
+                }
+
                 cell.addEventListener('click', () => selectCellIndex(i));
                 
                 // Corner / Snyder Notes Grid (3x3)
@@ -582,7 +677,7 @@
             board = sample.split('').map(Number);
             initialBoard = [...board];
             given = board.map(val => val !== 0);
-            solution = [...board];
+            solution = solveSudoku(board);
             snyderNotes = Array(81).fill().map(() => new Set());
             middleNotes = Array(81).fill().map(() => new Set());
             colors = Array(81).fill(null);
@@ -659,6 +754,41 @@
             document.getElementById('current-color-label').innerText = activeColor ? activeColor.toUpperCase() : 'None';
         }
 
+        function getErrorCells() {
+            const errorSet = new Set();
+            
+            for (let i = 0; i < 81; i++) {
+                const val = board[i];
+                if (val === 0) continue;
+
+                const r = Math.floor(i / 9);
+                const c = i % 9;
+                const br = Math.floor(r / 3) * 3;
+                const bc = Math.floor(c / 3) * 3;
+
+                // Check conflict with any other cell in the same row, column, or 3x3 block
+                for (let j = 0; j < 81; j++) {
+                    if (i === j || board[j] !== val) continue;
+                    const r2 = Math.floor(j / 9);
+                    const c2 = j % 9;
+                    const br2 = Math.floor(r2 / 3) * 3;
+                    const bc2 = Math.floor(c2 / 3) * 3;
+
+                    if (r === r2 || c === c2 || (br === br2 && bc === bc2)) {
+                        if (!given[i]) errorSet.add(i);
+                        if (!given[j]) errorSet.add(j);
+                    }
+                }
+
+                // Check if user entry contradicts the true solution
+                if (!given[i] && solution.length === 81 && solution[i] !== 0 && val !== solution[i]) {
+                    errorSet.add(i);
+                }
+            }
+
+            return errorSet;
+        }
+
         function handleKeyInput(num) {
             if (selectedCell === null || given[selectedCell]) return;
 
@@ -706,12 +836,30 @@
 
         function updateBoardDOM() {
             const cells = document.querySelectorAll('.cell');
+            const errorCells = getErrorCells();
+
             cells.forEach((cell, i) => {
+                const row = Math.floor(i / 9);
+                const col = i % 9;
+                const block = Math.floor(row / 3) * 3 + Math.floor(col / 3);
+
                 cell.className = 'cell';
+                if (block % 2 === 0) cell.classList.add('block-alt');
+                if (col === 2 || col === 5) cell.classList.add('border-right-thick');
+                else if (col === 8) cell.classList.add('border-right-none');
+
+                if (row === 2 || row === 5) cell.classList.add('border-bottom-thick');
+                else if (row === 8) cell.classList.add('border-bottom-none');
+
                 if (given[i]) cell.classList.add('given');
                 else if (board[i] !== 0) cell.classList.add('user-input');
                 
                 if (i === selectedCell) cell.classList.add('selected');
+
+                // Error Highlight in Red
+                if (errorCells.has(i)) {
+                    cell.classList.add('error');
+                }
 
                 if (colors[i]) {
                     cell.style.backgroundColor = colorHexMap[colors[i]];
@@ -751,6 +899,17 @@
                     }
                 }
             });
+
+            // Update error indicator in status bar
+            const errorStatusEl = document.getElementById('error-status');
+            if (errorStatusEl) {
+                if (errorCells.size > 0) {
+                    errorStatusEl.style.display = 'inline-flex';
+                    errorStatusEl.innerText = `⚠️ ${errorCells.size} Error${errorCells.size > 1 ? 's' : ''}`;
+                } else {
+                    errorStatusEl.style.display = 'none';
+                }
+            }
         }
 
         function updateKeypadCounts() {

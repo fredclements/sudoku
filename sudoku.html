@@ -473,19 +473,20 @@
     <div class="game-container">
         <div class="controls-bar">
             <select id="difficulty" onchange="onDifficultyChange()">
-                <option value="easy">Easy (36 Clues)</option>
-                <option value="medium" selected>Medium (30 Clues)</option>
-                <option value="hard">Hard (26 Clues)</option>
-                <option value="expert">Expert (23 Clues)</option>
+                <option value="easy">Easy (~36 Clues)</option>
+                <option value="medium" selected>Medium (~30 Clues)</option>
+                <option value="hard">Hard (~26 Clues)</option>
+                <option value="expert">Expert (~24 Clues)</option>
             </select>
-            <button onclick="newGame()">New Game</button>
-            <button onclick="nextPuzzle()" title="Load next puzzle in this level">Next (#<span id="puzzle-num">1</span>/25)</button>
+            <button onclick="generateNewUnlimited()" title="Instantly generate an infinite new puzzle">✨ New Puzzle (Unlimited)</button>
+            <button onclick="nextCatalogPuzzle()" title="Play from the curated 25-puzzle catalog">Catalog (#<span id="puzzle-num">1</span>/25)</button>
             <button onclick="toggleMode('color')" id="mode-color-btn">Highlight Color</button>
             <button onclick="restartGame()">Reset</button>
         </div>
 
         <div class="mode-indicators">
             <span>Level: <strong id="level-label" style="margin-left: 4px;">Medium #1</strong></span>
+            <span>Clues: <strong id="clues-label" style="margin-left: 4px;">30</strong></span>
             <span>Input: <strong id="current-mode-label" style="margin-left: 4px;">Normal (Numbers)</strong></span>
             <span>Highlight: <strong id="current-color-label" style="margin-left: 4px;">None</strong></span>
             <span id="error-status" style="display:none; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); font-weight: 600;"></span>
@@ -784,33 +785,146 @@
             keypadEl.appendChild(eraseBtn);
         }
 
+
+        let puzzleCounters = { easy: 0, medium: 0, hard: 0, expert: 0 };
+        const clueTargets = { easy: 36, medium: 30, hard: 26, expert: 23 };
+
+        function countSolutions(grid, limit = 2) {
+            let count = 0;
+            function solve() {
+                if (count >= limit) return;
+                let minCandidates = 10;
+                let bestIdx = -1;
+                let bestNums = [];
+                for (let idx = 0; idx < 81; idx++) {
+                    if (grid[idx] === 0) {
+                        const r = Math.floor(idx / 9);
+                        const c = idx % 9;
+                        const br = Math.floor(r / 3) * 3;
+                        const bc = Math.floor(c / 3) * 3;
+                        const used = new Set();
+                        for (let i = 0; i < 9; i++) {
+                            used.add(grid[r * 9 + i]);
+                            used.add(grid[i * 9 + c]);
+                            used.add(grid[(br + Math.floor(i / 3)) * 9 + bc + (i % 3)]);
+                        }
+                        const avail = [];
+                        for (let num = 1; num <= 9; num++) {
+                            if (!used.has(num)) avail.push(num);
+                        }
+                        if (avail.length < minCandidates) {
+                            minCandidates = avail.length;
+                            bestIdx = idx;
+                            bestNums = avail;
+                            if (minCandidates <= 1) break;
+                        }
+                    }
+                }
+                if (bestIdx === -1) {
+                    count++;
+                    return;
+                }
+                if (bestNums.length === 0) return;
+                for (const num of bestNums) {
+                    grid[bestIdx] = num;
+                    solve();
+                    grid[bestIdx] = 0;
+                    if (count >= limit) return;
+                }
+            }
+            solve();
+            return count;
+        }
+
+        function generateFullGrid() {
+            const grid = new Array(81).fill(0);
+            for (let box = 0; box < 3; box++) {
+                const nums = [1,2,3,4,5,6,7,8,9].sort(() => Math.random() - 0.5);
+                const startR = box * 3;
+                const startC = box * 3;
+                let idx = 0;
+                for (let r = 0; r < 3; r++) {
+                    for (let c = 0; c < 3; c++) {
+                        grid[(startR + r) * 9 + (startC + c)] = nums[idx++];
+                    }
+                }
+            }
+            function fillRemaining(idx = 0) {
+                if (idx === 81) return true;
+                if (grid[idx] !== 0) return fillRemaining(idx + 1);
+                const r = Math.floor(idx / 9);
+                const c = idx % 9;
+                const br = Math.floor(r / 3) * 3;
+                const bc = Math.floor(c / 3) * 3;
+                const used = new Set();
+                for (let i = 0; i < 9; i++) {
+                    used.add(grid[r * 9 + i]);
+                    used.add(grid[i * 9 + c]);
+                    used.add(grid[(br + Math.floor(i / 3)) * 9 + bc + (i % 3)]);
+                }
+                const nums = [];
+                for (let num = 1; num <= 9; num++) {
+                    if (!used.has(num)) nums.push(num);
+                }
+                nums.sort(() => Math.random() - 0.5);
+                for (const num of nums) {
+                    grid[idx] = num;
+                    if (fillRemaining(idx + 1)) return true;
+                    grid[idx] = 0;
+                }
+                return false;
+            }
+            fillRemaining();
+            return grid;
+        }
+
+        function generateLivePuzzle(targetClues) {
+            const grid = generateFullGrid();
+            const positions = Array.from({length: 81}, (_, i) => i).sort(() => Math.random() - 0.5);
+            let clues = 81;
+            for (const pos of positions) {
+                if (clues <= targetClues) break;
+                const val = grid[pos];
+                grid[pos] = 0;
+                if (countSolutions([...grid], 2) === 1) {
+                    clues--;
+                } else {
+                    grid[pos] = val;
+                }
+            }
+            return { puzzle: grid.join(''), clues };
+        }
+
+        function generateNewUnlimited() {
+            currentDifficulty = document.getElementById('difficulty').value;
+            puzzleCounters[currentDifficulty]++;
+            const target = clueTargets[currentDifficulty] || 30;
+            const res = generateLivePuzzle(target);
+            loadPuzzleString(res.puzzle, `${currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1)} #${puzzleCounters[currentDifficulty]} (Unlimited)`, res.clues);
+        }
+
         function onDifficultyChange() {
             currentDifficulty = document.getElementById('difficulty').value;
-            loadPuzzle(currentDifficulty, puzzleIndices[currentDifficulty]);
+            generateNewUnlimited();
         }
 
-        function newGame() {
-            currentDifficulty = document.getElementById('difficulty').value;
-            const list = puzzles[currentDifficulty] || puzzles.medium;
-            let nextIdx = Math.floor(Math.random() * list.length);
-            if (list.length > 1 && nextIdx === puzzleIndices[currentDifficulty]) {
-                nextIdx = (nextIdx + 1) % list.length;
-            }
-            puzzleIndices[currentDifficulty] = nextIdx;
-            loadPuzzle(currentDifficulty, nextIdx);
-        }
-
-        function nextPuzzle() {
+        function nextCatalogPuzzle() {
             currentDifficulty = document.getElementById('difficulty').value;
             const list = puzzles[currentDifficulty] || puzzles.medium;
             puzzleIndices[currentDifficulty] = (puzzleIndices[currentDifficulty] + 1) % list.length;
-            loadPuzzle(currentDifficulty, puzzleIndices[currentDifficulty]);
+            const puzStr = list[puzzleIndices[currentDifficulty]];
+            const diffName = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
+            const numEl = document.getElementById('puzzle-num');
+            if (numEl) numEl.innerText = (puzzleIndices[currentDifficulty] + 1);
+            const clueCount = puzStr.split('').filter(c => c !== '0').length;
+            loadPuzzleString(puzStr, `${diffName} #${puzzleIndices[currentDifficulty] + 1} (Catalog)`, clueCount);
         }
 
-        function loadPuzzle(diff, index) {
-            const list = puzzles[diff] || puzzles.medium;
-            const puzzleStr = list[index];
+        function newGame() {
+            generateNewUnlimited();
+        }
 
+        function loadPuzzleString(puzzleStr, title, clueCount) {
             board = puzzleStr.split('').map(Number);
             initialBoard = [...board];
             given = board.map(val => val !== 0);
@@ -820,16 +934,15 @@
             colors = Array(81).fill(null);
             selectedCell = null;
 
-            // Update UI indicators
-            const diffName = diff.charAt(0).toUpperCase() + diff.slice(1);
-            const numEl = document.getElementById('puzzle-num');
-            if (numEl) numEl.innerText = (index + 1);
             const levelEl = document.getElementById('level-label');
-            if (levelEl) levelEl.innerText = `${diffName} #${index + 1}`;
+            if (levelEl) levelEl.innerText = title;
+            const cluesEl = document.getElementById('clues-label');
+            if (cluesEl) cluesEl.innerText = clueCount || board.filter(c => c !== 0).length;
 
             updateBoardDOM();
             updateKeypadCounts();
         }
+
 
         function restartGame() {
             board = [...initialBoard];

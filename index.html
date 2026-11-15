@@ -1112,9 +1112,10 @@
         let colors = Array(81).fill(null);
         
         let selectedCell = null;
-            selectedCells.clear();
-            stickyNumber = null;
-            updateStickyUI();
+        let selectedCells = new Set();
+        let isPointerDragging = false;
+        let isMultiSelectMode = false;
+        let stickyNumber = null;
         let inputMode = 'number'; // 'number', 'note', 'color'
         let noteStyle = 'snyder'; // 'snyder', 'middle'
         let activeColor = 'yellow';
@@ -1572,11 +1573,6 @@
             updateBestTimeDisplay();
             onDifficultyChange();
         }
-
-        let selectedCells = new Set();
-        let isPointerDragging = false;
-        let isMultiSelectMode = false;
-        let stickyNumber = null;
 
         function toggleMultiSelectMode() {
             isMultiSelectMode = !isMultiSelectMode;

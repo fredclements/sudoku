@@ -28,7 +28,7 @@
             --input-color: #34d399;
             --grid-line-thick: #f8fafc;
             --grid-line-thin: #334155;
-            --notes-corner: #e2e8f0;
+            --notes-corner: #38bdf8;
             --notes-center: #38bdf8;
             
             /* Highlighting Colors */
@@ -56,7 +56,7 @@
             --input-color: #059669;
             --grid-line-thick: #0f172a;
             --grid-line-thin: #cbd5e1;
-            --notes-corner: #1e293b;
+            --notes-corner: #0284c7;
             --notes-center: #0284c7;
             
             /* Highlighting Colors */
@@ -530,7 +530,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
+            font-weight: 800;
+            color: var(--notes-corner);
         }
 
         /* Middle (Center) Notes Cluster */
@@ -788,11 +789,14 @@
         }
 
         .corner-note-cell.highlight-note {
-            color: #60a5fa !important;
-            font-weight: 700 !important;
+            color: #fbbf24 !important;
+            font-weight: 800 !important;
+            text-shadow: 0 0 6px rgba(251, 191, 36, 0.7);
         }
         [data-theme="light"] .corner-note-cell.highlight-note {
-            color: #1d4ed8 !important;
+            color: #b45309 !important;
+            font-weight: 800 !important;
+            text-shadow: none;
         }
 
         #sound-btn.muted {

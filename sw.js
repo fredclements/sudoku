@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sudoku-pwa-v1';
+const CACHE_NAME = 'sudoku-pwa-v2';
 const ASSETS = [
     './',
     './index.html',
@@ -8,23 +8,31 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
+    self.skipWaiting();
     e.waitUntil(
         caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
     );
-    self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
     e.waitUntil(
         caches.keys().then(keys => Promise.all(
             keys.map(k => k !== CACHE_NAME ? caches.delete(k) : null)
-        ))
+        )).then(() => self.clients.claim())
     );
-    self.clients.claim();
 });
 
+// Network-first strategy: always fetch fresh copy when online, fallback to cache when offline
 self.addEventListener('fetch', e => {
     e.respondWith(
-        caches.match(e.request).then(res => res || fetch(e.request))
+        fetch(e.request)
+            .then(networkRes => {
+                if (networkRes && networkRes.status === 200 && e.request.method === 'GET') {
+                    const clone = networkRes.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+                }
+                return networkRes;
+            })
+            .catch(() => caches.match(e.request))
     );
 });

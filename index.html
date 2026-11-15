@@ -28,7 +28,7 @@
             --input-color: #34d399;
             --grid-line-thick: #f8fafc;
             --grid-line-thin: #334155;
-            --notes-corner: #94a3b8;
+            --notes-corner: #e2e8f0;
             --notes-center: #38bdf8;
             
             /* Highlighting Colors */
@@ -56,7 +56,7 @@
             --input-color: #059669;
             --grid-line-thick: #0f172a;
             --grid-line-thin: #cbd5e1;
-            --notes-corner: #64748b;
+            --notes-corner: #1e293b;
             --notes-center: #0284c7;
             
             /* Highlighting Colors */
@@ -233,17 +233,21 @@
                 font-weight: 700;
             }
 
-            /* Bigger, clearer Snyder corner notes */
+            /* Bigger, bolder, high-legibility Snyder corner notes on mobile */
             .corner-notes-grid {
-                font-size: 0.65rem;
-                color: #cbd5e1;
-                font-weight: 600;
+                font-size: clamp(11.5px, 3.2vw, 14.5px);
+                font-weight: 800;
+                padding: 1px;
             }
 
-            /* Bigger, clearer Middle notes */
+            .corner-note-cell {
+                font-weight: 800;
+            }
+
+            /* Bigger, bolder Middle notes on mobile */
             .center-notes {
-                font-size: 0.72rem;
-                font-weight: 700;
+                font-size: clamp(13px, 3.8vw, 17px);
+                font-weight: 800;
             }
 
             .keypad {
@@ -504,7 +508,7 @@
             outline-offset: -2px;
         }
 
-        /* Snyder (Corner/Edge) Notes Grid (3x3) */
+        /* Snyder (Corner/Edge) Notes Grid (3x3) - Enhanced Visibility & Legibility */
         .corner-notes-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -514,8 +518,8 @@
             position: absolute;
             top: 0;
             left: 0;
-            padding: 1px 2px;
-            font-size: 0.65rem;
+            padding: 1px;
+            font-size: clamp(11px, 2.4vw, 14px);
             line-height: 1;
             color: var(--notes-corner);
             pointer-events: none;
@@ -526,7 +530,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 500;
+            font-weight: 700;
         }
 
         /* Middle (Center) Notes Cluster */
@@ -538,8 +542,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.72rem;
-            font-weight: 700;
+            font-size: clamp(13px, 3vw, 17px);
+            font-weight: 800;
             line-height: 1;
             color: var(--notes-center);
             pointer-events: none;

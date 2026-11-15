@@ -745,6 +745,262 @@
         .color-btn.pink { background-color: var(--color-pink); }
         .color-btn.purple { background-color: var(--color-purple); }
         .color-btn.clear { background-color: var(--card-bg); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
+
+        /* Peer & Matching Digit Highlights */
+        .cell.highlight-peer {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+        [data-theme="light"] .cell.highlight-peer {
+            background-color: rgba(0, 0, 0, 0.035);
+        }
+
+        .cell.matching-digit {
+            background-color: rgba(59, 130, 246, 0.32) !important;
+            box-shadow: inset 0 0 0 1.5px rgba(96, 165, 250, 0.7);
+        }
+        [data-theme="light"] .cell.matching-digit {
+            background-color: #dbeafe !important;
+            box-shadow: inset 0 0 0 1.5px #3b82f6;
+        }
+
+        .cell.matching-digit .cell-val {
+            color: #60a5fa !important;
+            font-weight: 800;
+            text-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
+        }
+        [data-theme="light"] .cell.matching-digit .cell-val {
+            color: #1d4ed8 !important;
+            text-shadow: none;
+        }
+
+        .corner-note-cell.highlight-note {
+            color: #60a5fa !important;
+            font-weight: 700 !important;
+        }
+        [data-theme="light"] .corner-note-cell.highlight-note {
+            color: #1d4ed8 !important;
+        }
+
+        /* Action Toolbar (Undo, Redo, Auto-Notes) */
+        .action-toolbar {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 7px 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            border-radius: 6px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .action-btn:not(:disabled):hover {
+            background: var(--border-color);
+            transform: translateY(-1px);
+        }
+
+        .action-btn:not(:disabled):active {
+            transform: translateY(0);
+        }
+
+        .mini-icon-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0 2px;
+            font-size: 0.75rem;
+            color: var(--subtext-color);
+            line-height: 1;
+            vertical-align: middle;
+        }
+
+        .mini-icon-btn:hover {
+            color: var(--text-color);
+        }
+
+        /* Pause Overlay */
+        .board-wrapper {
+            position: relative;
+        }
+
+        .pause-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            z-index: 20;
+            color: #f8fafc;
+            gap: 12px;
+        }
+        [data-theme="light"] .pause-overlay {
+            background: rgba(255, 255, 255, 0.92);
+            color: #0f172a;
+        }
+
+        .resume-btn {
+            padding: 10px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--accent-color);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Victory Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 24px 20px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--text-color);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            color: #fbbf24;
+        }
+
+        .modal-stats {
+            margin: 16px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.95rem;
+            background: var(--bg-color);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .modal-btn.primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .modal-btn.secondary {
+            background: var(--border-color);
+            color: var(--text-color);
+        }
+
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+
+        /* Multi-Cell Selection & Sticky Number styles */
+        .board {
+            touch-action: none; /* Allows smooth pointer drag multi-selection on touch devices */
+        }
+
+        .cell.selected {
+            background-color: rgba(59, 130, 246, 0.35) !important;
+            box-shadow: inset 0 0 0 1.5px #60a5fa;
+        }
+        [data-theme="light"] .cell.selected {
+            background-color: #bfdbfe !important;
+            box-shadow: inset 0 0 0 1.5px #2563eb;
+        }
+
+        .cell.primary-selected {
+            box-shadow: inset 0 0 0 2.5px #3b82f6 !important;
+        }
+
+        .key-btn.sticky-active {
+            background: #2563eb !important;
+            border-color: #93c5fd !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.8), inset 0 0 8px rgba(255,255,255,0.4);
+            animation: pulseGlow 1.4s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from { box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); }
+            to { box-shadow: 0 0 18px rgba(96, 165, 250, 1); }
+        }
+
+        .action-btn.active-toggle {
+            background: var(--accent-color) !important;
+            color: white !important;
+            border-color: var(--accent-color) !important;
+        }
+
     </style>
 </head>
 <body>
@@ -761,19 +1017,21 @@
                 <option value="hard">Hard (~26 Clues)</option>
                 <option value="expert">Expert (~24 Clues)</option>
             </select>
-            <button onclick="generateNewUnlimited()" title="Instantly generate an infinite new puzzle">✨ New Puzzle</button>
+            <button onclick="generateNewUnlimited()" title="Instantly generate an infinite new puzzle">✨ New</button>
             <button onclick="nextCatalogPuzzle()" title="Play from the curated catalog">Catalog (#<span id="puzzle-num">1</span>/25)</button>
             <button onclick="toggleMode('color')" id="mode-color-btn">Color</button>
             <button onclick="restartGame()">Reset</button>
-            <button onclick="toggleFullscreen()" id="fs-btn" title="Toggle Fullscreen for Mobile and Tablet">⛶ Fullscreen</button>
-            <button onclick="toggleTheme()" id="theme-btn" title="Toggle Light / Dark mode">☀️ Light</button>
+            <button onclick="toggleSound()" id="sound-btn" title="Toggle Sound & Haptics">🔊</button>
+            <button onclick="toggleFullscreen()" id="fs-btn" title="Toggle Fullscreen for Mobile and Tablet">⛶</button>
+            <button onclick="toggleTheme()" id="theme-btn" title="Toggle Light / Dark mode">☀️</button>
         </div>
 
         <div class="mode-indicators">
             <span>Level: <strong id="level-label" style="margin-left: 4px;">Medium #1</strong></span>
-            <span>Clues: <strong id="clues-label" style="margin-left: 4px;">30</strong></span>
+            <span>⏱️ <strong id="timer-label" style="margin-left: 4px; font-variant-numeric: tabular-nums;">00:00</strong> <button id="pause-btn" onclick="togglePause()" class="mini-icon-btn" title="Pause / Resume Timer">⏸</button></span>
+            <span id="best-time-container">🏆 Best: <strong id="best-time-label" style="margin-left: 4px;">--:--</strong></span>
             <span>Input: <strong id="current-mode-label" style="margin-left: 4px;">Normal (Numbers)</strong></span>
-            <span>Highlight: <strong id="current-color-label" style="margin-left: 4px;">None</strong></span>
+            <span id="sticky-status" style="display:none; color: #60a5fa; border-color: rgba(96, 165, 250, 0.4); font-weight: 600;"></span>
             <span id="error-status" style="display:none; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); font-weight: 600;"></span>
         </div>
 
@@ -781,9 +1039,29 @@
             <!-- 9x9 Sudoku Board -->
             <div class="board-wrapper">
                 <div class="board" id="sudoku-board"></div>
+                <div id="pause-overlay" class="pause-overlay" style="display:none;">
+                    <h3>Game Paused</h3>
+                    <button class="resume-btn" onclick="togglePause()">▶ Resume</button>
+                </div>
             </div>
 
             <div class="keypad-container">
+            <!-- Action Toolbar: Undo, Redo, Option 5: Auto-Notes -->
+            <div class="action-toolbar">
+                <button id="undo-btn" class="action-btn" onclick="undo()" title="Undo move (Ctrl+Z)" disabled>
+                    <span>↶</span> Undo
+                </button>
+                <button id="redo-btn" class="action-btn" onclick="redo()" title="Redo move (Ctrl+Y)" disabled>
+                    <span>↷</span> Redo
+                </button>
+                <button id="multi-btn" class="action-btn" onclick="toggleMultiSelectMode()" title="Toggle Multi-Select mode (or drag across cells)">
+                    <span>☑</span> Multi
+                </button>
+                <button id="fill-notes-btn" class="action-btn" onclick="fillCandidateNotes()" title="Calculate and fill candidate notes for empty cells">
+                    <span>💡</span> Auto-Notes
+                </button>
+            </div>
+
             <!-- 5x2 Keypad: 1-5 top row, 6-9 + Erase bottom row -->
             <div class="keypad" id="keypad"></div>
 
@@ -834,17 +1112,232 @@
         let colors = Array(81).fill(null);
         
         let selectedCell = null;
+            selectedCells.clear();
+            stickyNumber = null;
+            updateStickyUI();
         let inputMode = 'number'; // 'number', 'note', 'color'
         let noteStyle = 'snyder'; // 'snyder', 'middle'
         let activeColor = 'yellow';
 
-        const colorHexMap = {
-            'yellow': 'var(--color-yellow)',
-            'green': 'var(--color-green)',
-            'blue': 'var(--color-blue)',
-            'pink': 'var(--color-pink)',
-            'purple': 'var(--color-purple)'
-        };
+        // Timer & Best Times state
+        let timerSeconds = 0;
+        let timerInterval = null;
+        let isPaused = false;
+        let gameFinished = false;
+
+        // Undo / Redo history stacks
+        let undoStack = [];
+        let redoStack = [];
+
+        // Sound & Haptic State
+        let soundEnabled = localStorage.getItem('sudoku-sound') !== 'false';
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) audioCtx = new AudioContextClass();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playTone(freq, type = 'sine', duration = 0.08, gainVal = 0.08) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function playTapSound() {
+            playTone(440, 'sine', 0.06, 0.08);
+            if (navigator.vibrate) navigator.vibrate(12);
+        }
+
+        function playErrorSound() {
+            playTone(220, 'sawtooth', 0.15, 0.12);
+            if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+        }
+
+        function playWinFanfare() {
+            if (!soundEnabled) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+            notes.forEach((freq, i) => {
+                setTimeout(() => playTone(freq, 'triangle', 0.25, 0.15), i * 120);
+            });
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('sudoku-sound', soundEnabled ? 'true' : 'false');
+            
+        }
+
+        function updateSoundBtn() {
+            const btn = document.getElementById('sound-btn');
+            if (btn) btn.innerText = soundEnabled ? '🔊' : '🔇';
+        }
+
+        // Timer Functions
+        function formatTime(totalSec) {
+            const m = Math.floor(totalSec / 60);
+            const s = totalSec % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused && !gameFinished) {
+                    timerSeconds++;
+                    const el = document.getElementById('timer-label');
+                    if (el) el.innerText = formatTime(timerSeconds);
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerSeconds = 0;
+            gameFinished = false;
+            isPaused = false;
+            const el = document.getElementById('timer-label');
+            if (el) el.innerText = '00:00';
+            const pauseOverlay = document.getElementById('pause-overlay');
+            if (pauseOverlay) pauseOverlay.style.display = 'none';
+            const pauseBtn = document.getElementById('pause-btn');
+            if (pauseBtn) pauseBtn.innerText = '⏸';
+            startTimer();
+            updateBestTimeDisplay();
+        }
+
+        function togglePause() {
+            if (gameFinished) return;
+            isPaused = !isPaused;
+            const pauseOverlay = document.getElementById('pause-overlay');
+            const pauseBtn = document.getElementById('pause-btn');
+            if (pauseOverlay) pauseOverlay.style.display = isPaused ? 'flex' : 'none';
+            if (pauseBtn) pauseBtn.innerText = isPaused ? '▶' : '⏸';
+        }
+
+        function updateBestTimeDisplay() {
+            const best = localStorage.getItem('sudoku-best-' + currentDifficulty);
+            const el = document.getElementById('best-time-label');
+            if (el) el.innerText = best ? formatTime(parseInt(best)) : '--:--';
+        }
+
+        // Undo / Redo Functions
+        function pushUndoState() {
+            undoStack.push({
+                board: [...board],
+                snyder: snyderNotes.map(s => new Set(s)),
+                middle: middleNotes.map(m => new Set(m)),
+                colors: [...colors],
+                selected: selectedCell
+            });
+            if (undoStack.length > 50) undoStack.shift();
+            redoStack = [];
+            updateUndoRedoBtns();
+        }
+
+        function undo() {
+            if (undoStack.length === 0) return;
+            redoStack.push({
+                board: [...board],
+                snyder: snyderNotes.map(s => new Set(s)),
+                middle: middleNotes.map(m => new Set(m)),
+                colors: [...colors],
+                selected: selectedCell
+            });
+            const prev = undoStack.pop();
+            board = [...prev.board];
+            snyderNotes = prev.snyder.map(s => new Set(s));
+            middleNotes = prev.middle.map(m => new Set(m));
+            colors = [...prev.colors];
+            selectedCell = prev.selected;
+            updateUndoRedoBtns();
+            updateBoardDOM();
+            updateKeypadCounts();
+            playTapSound();
+        }
+
+        function redo() {
+            if (redoStack.length === 0) return;
+            undoStack.push({
+                board: [...board],
+                snyder: snyderNotes.map(s => new Set(s)),
+                middle: middleNotes.map(m => new Set(m)),
+                colors: [...colors],
+                selected: selectedCell
+            });
+            const next = redoStack.pop();
+            board = [...next.board];
+            snyderNotes = next.snyder.map(s => new Set(s));
+            middleNotes = next.middle.map(m => new Set(m));
+            colors = [...next.colors];
+            selectedCell = next.selected;
+            updateUndoRedoBtns();
+            updateBoardDOM();
+            updateKeypadCounts();
+            playTapSound();
+        }
+
+        function updateUndoRedoBtns() {
+            const uBtn = document.getElementById('undo-btn');
+            const rBtn = document.getElementById('redo-btn');
+            if (uBtn) uBtn.disabled = undoStack.length === 0;
+            if (rBtn) rBtn.disabled = redoStack.length === 0;
+        }
+
+        // Option 5: Auto-Fill Candidate Notes
+        function fillCandidateNotes() {
+            pushUndoState();
+            let filledCount = 0;
+            for (let i = 0; i < 81; i++) {
+                if (board[i] === 0) {
+                    const r = Math.floor(i / 9);
+                    const c = i % 9;
+                    const br = Math.floor(r / 3) * 3;
+                    const bc = Math.floor(c / 3) * 3;
+
+                    const used = new Set();
+                    for (let j = 0; j < 9; j++) {
+                        used.add(board[r * 9 + j]);
+                        used.add(board[j * 9 + c]);
+                        used.add(board[(br + Math.floor(j / 3)) * 9 + bc + (j % 3)]);
+                    }
+
+                    for (let num = 1; num <= 9; num++) {
+                        if (!used.has(num)) {
+                            if (noteStyle === 'snyder') {
+                                snyderNotes[i].add(num);
+                            } else {
+                                middleNotes[i].add(num);
+                            }
+                            filledCount++;
+                        }
+                    }
+                }
+            }
+            updateBoardDOM();
+            playTapSound();
+        }
 
         const puzzles = {
         "easy": [
@@ -1075,12 +1568,35 @@
         function initGame() {
             createBoardDOM();
             createKeypadDOM();
+            updateSoundBtn();
+            updateBestTimeDisplay();
             onDifficultyChange();
+        }
+
+        let selectedCells = new Set();
+        let isPointerDragging = false;
+        let isMultiSelectMode = false;
+        let stickyNumber = null;
+
+        function toggleMultiSelectMode() {
+            isMultiSelectMode = !isMultiSelectMode;
+            const btn = document.getElementById('multi-btn');
+            if (btn) btn.classList.toggle('active-toggle', isMultiSelectMode);
+            playTapSound();
         }
 
         function createBoardDOM() {
             const boardEl = document.getElementById('sudoku-board');
             boardEl.innerHTML = '';
+
+            // Global pointer up to finish drag
+            window.addEventListener('pointerup', () => {
+                isPointerDragging = false;
+            });
+            window.addEventListener('pointercancel', () => {
+                isPointerDragging = false;
+            });
+
             for (let i = 0; i < 81; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
@@ -1090,25 +1606,53 @@
                 const col = i % 9;
                 const block = Math.floor(row / 3) * 3 + Math.floor(col / 3);
 
-                // Alternating block shading
-                if (block % 2 === 0) {
-                    cell.classList.add('block-alt');
-                }
+                if (block % 2 === 0) cell.classList.add('block-alt');
+                if (col === 2 || col === 5) cell.classList.add('border-right-thick');
+                else if (col === 8) cell.classList.add('border-right-none');
 
-                // Distinct 3x3 block borders
-                if (col === 2 || col === 5) {
-                    cell.classList.add('border-right-thick');
-                } else if (col === 8) {
-                    cell.classList.add('border-right-none');
-                }
+                if (row === 2 || row === 5) cell.classList.add('border-bottom-thick');
+                else if (row === 8) cell.classList.add('border-bottom-none');
 
-                if (row === 2 || row === 5) {
-                    cell.classList.add('border-bottom-thick');
-                } else if (row === 8) {
-                    cell.classList.add('border-bottom-none');
-                }
+                // Pointer events for instant tap & smooth multi-drag selection
+                cell.addEventListener('pointerdown', (e) => {
+                    if (isPaused || gameFinished) return;
+                    e.preventDefault();
 
-                cell.addEventListener('click', () => selectCellIndex(i));
+                    // If sticky number is active, apply immediately on tap
+                    if (stickyNumber !== null) {
+                        if (!given[i]) {
+                            selectedCells.clear();
+                            selectedCells.add(i);
+                            selectedCell = i;
+                            handleKeyInput(stickyNumber);
+                        }
+                        return;
+                    }
+
+                    isPointerDragging = true;
+                    if (e.ctrlKey || e.metaKey || isMultiSelectMode) {
+                        if (selectedCells.has(i)) {
+                            selectedCells.delete(i);
+                            selectedCell = selectedCells.size > 0 ? Array.from(selectedCells)[selectedCells.size - 1] : null;
+                        } else {
+                            selectedCells.add(i);
+                            selectedCell = i;
+                        }
+                    } else {
+                        selectedCells.clear();
+                        selectedCells.add(i);
+                        selectedCell = i;
+                    }
+                    updateBoardDOM();
+                });
+
+                cell.addEventListener('pointerenter', (e) => {
+                    if (isPointerDragging && stickyNumber === null) {
+                        selectedCells.add(i);
+                        selectedCell = i;
+                        updateBoardDOM();
+                    }
+                });
                 
                 // Corner / Snyder Notes Grid (3x3)
                 const cornerGrid = document.createElement('div');
@@ -1130,16 +1674,80 @@
             }
         }
 
+        function setStickyNumber(num) {
+            if (stickyNumber === num) {
+                stickyNumber = null;
+            } else {
+                stickyNumber = num;
+                playTone(587.33, 'triangle', 0.15, 0.1);
+                if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+            }
+            updateStickyUI();
+            updateBoardDOM();
+        }
+
+        function updateStickyUI() {
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.getElementById(`key-btn-${i}`);
+                if (btn) btn.classList.toggle('sticky-active', stickyNumber === i);
+            }
+            const statusEl = document.getElementById('sticky-status');
+            if (statusEl) {
+                if (stickyNumber !== null) {
+                    statusEl.style.display = 'inline-flex';
+                    statusEl.innerText = `📌 Sticky #${stickyNumber} (Tap cells to fill)`;
+                } else {
+                    statusEl.style.display = 'none';
+                }
+            }
+        }
+
         function createKeypadDOM() {
             const keypadEl = document.getElementById('keypad');
             keypadEl.innerHTML = '';
             for (let i = 1; i <= 9; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'key-btn';
+                btn.id = `key-btn-${i}`;
                 btn.innerHTML = `<span class="num">${i}</span><span class="count" id="count-${i}">9</span>`;
-                btn.addEventListener('click', () => handleKeyInput(i));
+
+                // Long-press detection (400ms) for Sticky Mode on both touch and mouse
+                let longPressTimer = null;
+                let didLongPress = false;
+
+                btn.addEventListener('pointerdown', (e) => {
+                    didLongPress = false;
+                    longPressTimer = setTimeout(() => {
+                        didLongPress = true;
+                        setStickyNumber(i);
+                    }, 380);
+                });
+
+                btn.addEventListener('pointerup', () => {
+                    clearTimeout(longPressTimer);
+                });
+
+                btn.addEventListener('pointerleave', () => {
+                    clearTimeout(longPressTimer);
+                });
+
+                btn.addEventListener('pointercancel', () => {
+                    clearTimeout(longPressTimer);
+                });
+
+                btn.addEventListener('click', () => {
+                    if (didLongPress) return;
+                    if (stickyNumber === i) {
+                        // Clicking sticky key turns it off
+                        setStickyNumber(i);
+                    } else {
+                        handleKeyInput(i);
+                    }
+                });
+
                 keypadEl.appendChild(btn);
             }
+
             // 10th button: Erase slot completing the 5x2 grid
             const eraseBtn = document.createElement('button');
             eraseBtn.className = 'key-btn erase-btn';
@@ -1297,6 +1905,14 @@
             middleNotes = Array(81).fill().map(() => new Set());
             colors = Array(81).fill(null);
             selectedCell = null;
+            selectedCells.clear();
+            stickyNumber = null;
+            updateStickyUI();
+
+            undoStack = [];
+            redoStack = [];
+            updateUndoRedoBtns();
+            resetTimer();
 
             const levelEl = document.getElementById('level-label');
             if (levelEl) levelEl.innerText = title;
@@ -1307,6 +1923,109 @@
             updateKeypadCounts();
         }
 
+        // Victory Check & Celebration Confetti
+        function checkVictory() {
+            if (gameFinished) return;
+            // Check if board full
+            const isFull = board.every(val => val >= 1 && val <= 9);
+            if (!isFull) return;
+
+            const errorCells = getErrorCells();
+            if (errorCells.size > 0) return;
+
+            // VICTORY!
+            gameFinished = true;
+            clearInterval(timerInterval);
+            playWinFanfare();
+            fireConfetti();
+
+            // Check Best Time
+            const currentBest = localStorage.getItem('sudoku-best-' + currentDifficulty);
+            let isNewBest = false;
+            if (!currentBest || timerSeconds < parseInt(currentBest)) {
+                localStorage.setItem('sudoku-best-' + currentDifficulty, timerSeconds.toString());
+                isNewBest = true;
+            }
+            updateBestTimeDisplay();
+
+            // Show Victory Modal
+            const modal = document.getElementById('victory-modal');
+            const diffEl = document.getElementById('victory-diff');
+            const timeEl = document.getElementById('victory-time');
+            const recEl = document.getElementById('victory-record');
+
+            if (diffEl) diffEl.innerText = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
+            if (timeEl) timeEl.innerText = formatTime(timerSeconds);
+            if (recEl) recEl.style.display = isNewBest ? 'block' : 'none';
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeVictoryModal() {
+            const modal = document.getElementById('victory-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // Lightweight Canvas Confetti Engine (zero external dependencies)
+        let confettiAnimation = null;
+        function fireConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#f59e0b', '#ef4444', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#06b6d4'];
+            for (let i = 0; i < 140; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2 + 50,
+                    vx: (Math.random() - 0.5) * 18,
+                    vy: (Math.random() - 1.2) * 16 - 3,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rot: Math.random() * 360,
+                    vRot: (Math.random() - 0.5) * 10,
+                    alpha: 1
+                });
+            }
+
+            let start = Date.now();
+            if (confettiAnimation) cancelAnimationFrame(confettiAnimation);
+
+            function render() {
+                const elapsed = Date.now() - start;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.45; // gravity
+                    p.vx *= 0.98; // friction
+                    p.rot += p.vRot;
+                    if (elapsed > 1800) {
+                        p.alpha = Math.max(0, p.alpha - 0.02);
+                    }
+
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+                    ctx.restore();
+                });
+
+                if (elapsed < 3500) {
+                    confettiAnimation = requestAnimationFrame(render);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            confettiAnimation = requestAnimationFrame(render);
+        }
+
+
 
         function restartGame() {
             board = [...initialBoard];
@@ -1314,6 +2033,9 @@
             middleNotes = Array(81).fill().map(() => new Set());
             colors = Array(81).fill(null);
             selectedCell = null;
+            selectedCells.clear();
+            stickyNumber = null;
+            updateStickyUI();
             updateBoardDOM();
             updateKeypadCounts();
         }
@@ -1410,54 +2132,104 @@
             return errorSet;
         }
 
+        function getTargetCells() {
+            if (selectedCells.size > 0) {
+                return Array.from(selectedCells).filter(idx => !given[idx]);
+            }
+            if (selectedCell !== null && !given[selectedCell]) {
+                return [selectedCell];
+            }
+            return [];
+        }
+
         function handleKeyInput(num) {
-            if (selectedCell === null || given[selectedCell]) return;
+            if (isPaused || gameFinished) return;
+            const targets = getTargetCells();
+            if (targets.length === 0) return;
+
+            pushUndoState();
 
             if (inputMode === 'number') {
-                board[selectedCell] = (board[selectedCell] === num) ? 0 : num;
-                // Clear pencil notes when placing actual digit
-                snyderNotes[selectedCell].clear();
-                middleNotes[selectedCell].clear();
+                const singleTarget = targets.length === 1;
+                targets.forEach(idx => {
+                    board[idx] = (singleTarget && board[idx] === num) ? 0 : num;
+                    snyderNotes[idx].clear();
+                    middleNotes[idx].clear();
+                });
+
+                const errs = getErrorCells();
+                const hasAnyError = targets.some(idx => errs.has(idx));
+                if (hasAnyError) playErrorSound();
+                else playTapSound();
             } else if (inputMode === 'note') {
-                if (board[selectedCell] === 0) {
-                    if (noteStyle === 'snyder') {
-                        if (snyderNotes[selectedCell].has(num)) {
-                            snyderNotes[selectedCell].delete(num);
+                targets.forEach(idx => {
+                    if (board[idx] === 0) {
+                        if (noteStyle === 'snyder') {
+                            if (snyderNotes[idx].has(num)) snyderNotes[idx].delete(num);
+                            else snyderNotes[idx].add(num);
                         } else {
-                            snyderNotes[selectedCell].add(num);
-                        }
-                    } else if (noteStyle === 'middle') {
-                        if (middleNotes[selectedCell].has(num)) {
-                            middleNotes[selectedCell].delete(num);
-                        } else {
-                            middleNotes[selectedCell].add(num);
+                            if (middleNotes[idx].has(num)) middleNotes[idx].delete(num);
+                            else middleNotes[idx].add(num);
                         }
                     }
-                }
+                });
+                playTapSound();
             }
+
+            updateBoardDOM();
+            updateKeypadCounts();
+            checkVictory();
+        }
+
+        function clearSelection() {
+            if (isPaused || gameFinished) return;
+            const targets = getTargetCells();
+            if (targets.length === 0) return;
+
+            pushUndoState();
+
+            if (inputMode === 'color') {
+                targets.forEach(idx => colors[idx] = null);
+            } else {
+                targets.forEach(idx => {
+                    if (board[idx] !== 0) {
+                        board[idx] = 0;
+                    } else {
+                        snyderNotes[idx].clear();
+                        middleNotes[idx].clear();
+                    }
+                });
+            }
+            playTapSound();
             updateBoardDOM();
             updateKeypadCounts();
         }
 
-        function clearSelection() {
-            if (selectedCell === null || given[selectedCell]) return;
-            if (inputMode === 'color') {
-                colors[selectedCell] = null;
-            } else {
-                if (board[selectedCell] !== 0) {
-                    board[selectedCell] = 0;
-                } else {
-                    snyderNotes[selectedCell].clear();
-                    middleNotes[selectedCell].clear();
-                }
+        function selectColor(color) {
+            activeColor = color;
+            inputMode = 'color';
+            document.getElementById('mode-color-btn').classList.add('active');
+            document.getElementById('btn-mode-number').classList.remove('active');
+            document.getElementById('btn-mode-note').classList.remove('active');
+            
+            const targets = getTargetCells();
+            if (targets.length > 0) {
+                pushUndoState();
+                targets.forEach(idx => colors[idx] = color);
+                updateBoardDOM();
             }
-            updateBoardDOM();
-            updateKeypadCounts();
+            updateIndicatorLabel();
         }
 
         function updateBoardDOM() {
             const cells = document.querySelectorAll('.cell');
             const errorCells = getErrorCells();
+
+            // Digit Focus values
+            const activeVal = (selectedCell !== null && board[selectedCell] !== 0) ? board[selectedCell] : null;
+            const selRow = (selectedCell !== null) ? Math.floor(selectedCell / 9) : null;
+            const selCol = (selectedCell !== null) ? (selectedCell % 9) : null;
+            const selBox = (selectedCell !== null) ? Math.floor(selRow / 3) * 3 + Math.floor(selCol / 3) : null;
 
             cells.forEach((cell, i) => {
                 const row = Math.floor(i / 9);
@@ -1475,7 +2247,18 @@
                 if (given[i]) cell.classList.add('given');
                 else if (board[i] !== 0) cell.classList.add('user-input');
                 
-                if (i === selectedCell) cell.classList.add('selected');
+                if (selectedCells.has(i)) cell.classList.add('selected');
+                if (i === selectedCell && selectedCells.size > 1) cell.classList.add('primary-selected');
+
+                // Peer Crosshair Highlight (same row, col, or box)
+                if (selectedCell !== null && i !== selectedCell && (row === selRow || col === selCol || block === selBox)) {
+                    cell.classList.add('highlight-peer');
+                }
+
+                // Digit Focus (All matching numbers glow)
+                if (activeVal !== null && board[i] === activeVal) {
+                    cell.classList.add('matching-digit');
+                }
 
                 // Error Highlight in Red
                 if (errorCells.has(i)) {
@@ -1505,7 +2288,9 @@
                     const noteCells = cornerGrid.querySelectorAll('.corner-note-cell');
                     noteCells.forEach(nc => {
                         const n = parseInt(nc.dataset.note);
-                        nc.innerText = (board[i] === 0 && snyderNotes[i].has(n)) ? n : '';
+                        const hasNote = (board[i] === 0 && snyderNotes[i].has(n));
+                        nc.innerText = hasNote ? n : '';
+                        nc.classList.toggle('highlight-note', hasNote && activeVal !== null && n === activeVal);
                     });
                 }
 
@@ -1550,6 +2335,18 @@
 
         // Physical keyboard support
         window.addEventListener('keydown', (e) => {
+            // Undo / Redo shortcuts
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+                if (e.shiftKey) redo();
+                else undo();
+                e.preventDefault();
+                return;
+            } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) {
+                redo();
+                e.preventDefault();
+                return;
+            }
+
             if (e.key >= '1' && e.key <= '9') {
                 handleKeyInput(parseInt(e.key));
             } else if (e.key === 'Backspace' || e.key === 'Delete') {
@@ -1560,6 +2357,8 @@
                 setNoteStyle('snyder');
             } else if (e.key === 'm' || e.key === 'M') {
                 setNoteStyle('middle');
+            } else if (e.key === 'p' || e.key === 'P') {
+                togglePause();
             } else if (selectedCell !== null) {
                 const row = Math.floor(selectedCell / 9);
                 const col = selectedCell % 9;
@@ -1577,5 +2376,25 @@
 
         window.onload = initGame;
     </script>
+    <!-- Victory Celebration Modal -->
+    <div id="victory-modal" class="modal-backdrop" style="display:none;">
+        <div class="modal-card">
+            <h2>🎉 Puzzle Solved!</h2>
+            <p>Congratulations, you completed the grid!</p>
+            <div class="modal-stats">
+                <div>Difficulty: <strong id="victory-diff">Medium</strong></div>
+                <div>Time: <strong id="victory-time">00:00</strong></div>
+                <div id="victory-record" style="color:#10b981; font-weight:700; display:none;">🏆 New Personal Best!</div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeVictoryModal()">Close</button>
+                <button class="modal-btn primary" onclick="closeVictoryModal(); generateNewUnlimited();">Next Puzzle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Celebration Confetti Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
 </body>
 </html>

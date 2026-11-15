@@ -11,13 +11,15 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <title>Advanced Sudoku with Chain Highlighting</title>
     <style>
-        :root {
+        :root, [data-theme="dark"] {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
             --text-color: #f8fafc;
+            --subtext-color: #94a3b8;
             --accent-color: #3b82f6;
             --accent-hover: #2563eb;
             --border-color: #475569;
+            --panel-bg: rgba(15, 23, 42, 0.6);
             --cell-bg: #0f172a;
             --cell-alt: #141f36;
             --cell-selected: #334155;
@@ -26,6 +28,36 @@
             --input-color: #60a5fa;
             --grid-line-thick: #f8fafc;
             --grid-line-thin: #334155;
+            --notes-corner: #cbd5e1;
+            --notes-center: #38bdf8;
+            
+            /* Highlighting Colors */
+            --color-yellow: #fef08a;
+            --color-green: #bbf7d0;
+            --color-blue: #bfdbfe;
+            --color-pink: #fbcfe8;
+            --color-purple: #e9d5ff;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --subtext-color: #64748b;
+            --accent-color: #2563eb;
+            --accent-hover: #1d4ed8;
+            --border-color: #cbd5e1;
+            --panel-bg: #f8fafc;
+            --cell-bg: #ffffff;
+            --cell-alt: #f8fafc;
+            --cell-selected: #e2e8f0;
+            --cell-highlight: #bfdbfe77;
+            --given-color: #0f172a;
+            --input-color: #2563eb;
+            --grid-line-thick: #0f172a;
+            --grid-line-thin: #cbd5e1;
+            --notes-corner: #475569;
+            --notes-center: #0284c7;
             
             /* Highlighting Colors */
             --color-yellow: #fef08a;
@@ -584,7 +616,7 @@
             flex-direction: column;
             gap: 8px;
             width: 100%;
-            background: rgba(15, 23, 42, 0.6);
+            background: var(--panel-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 8px 10px;
@@ -734,6 +766,7 @@
             <button onclick="toggleMode('color')" id="mode-color-btn">Color</button>
             <button onclick="restartGame()">Reset</button>
             <button onclick="toggleFullscreen()" id="fs-btn" title="Toggle Fullscreen for Mobile and Tablet">⛶ Fullscreen</button>
+            <button onclick="toggleTheme()" id="theme-btn" title="Toggle Light / Dark mode">☀️ Light</button>
         </div>
 
         <div class="mode-indicators">
@@ -1008,6 +1041,36 @@
                 navigator.serviceWorker.register('./sw.js').catch(() => {});
             });
         }
+
+
+        // Light / Dark Theme Support
+        function getPreferredTheme() {
+            const saved = localStorage.getItem('sudoku-theme');
+            if (saved) return saved;
+            return (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('sudoku-theme', theme);
+            const themeBtn = document.getElementById('theme-btn');
+            if (themeBtn) {
+                themeBtn.innerText = (theme === 'light') ? '🌙 Dark' : '☀️ Light';
+            }
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) {
+                metaTheme.setAttribute('content', theme === 'light' ? '#f1f5f9' : '#0f172a');
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = (current === 'light') ? 'dark' : 'light';
+            applyTheme(next);
+        }
+
+        // Apply saved theme immediately
+        applyTheme(getPreferredTheme());
 
         function initGame() {
             createBoardDOM();

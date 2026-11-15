@@ -781,6 +781,11 @@
             color: #1d4ed8 !important;
         }
 
+        #sound-btn.muted {
+            opacity: 0.55;
+            filter: grayscale(1);
+        }
+
         /* Action Toolbar (Undo, Redo, Multi, Hint, Notes) */
         .action-toolbar {
             display: flex;
@@ -1155,10 +1160,17 @@
                 if (AudioContextClass) audioCtx = new AudioContextClass();
             }
             if (audioCtx && audioCtx.state === 'suspended') {
-                audioCtx.resume();
+                audioCtx.resume().catch(() => {});
             }
             return audioCtx;
         }
+
+        // Unlock Web Audio on first user interaction
+        window.addEventListener('pointerdown', () => {
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
+        }, { passive: true });
 
         function playTone(freq, type = 'sine', duration = 0.08, gainVal = 0.08) {
             if (!soundEnabled) return;
@@ -1202,12 +1214,26 @@
         function toggleSound() {
             soundEnabled = !soundEnabled;
             localStorage.setItem('sudoku-sound', soundEnabled ? 'true' : 'false');
-            
+            updateSoundBtn();
+
+            const ctx = getAudioContext();
+            if (ctx && ctx.state === 'suspended') {
+                ctx.resume();
+            }
+
+            if (soundEnabled) {
+                playTone(587.33, 'triangle', 0.12, 0.12);
+                if (navigator.vibrate) navigator.vibrate([25, 30, 25]);
+            }
         }
 
         function updateSoundBtn() {
             const btn = document.getElementById('sound-btn');
-            if (btn) btn.innerText = soundEnabled ? '🔊' : '🔇';
+            if (btn) {
+                btn.innerText = soundEnabled ? '🔊' : '🔇';
+                btn.title = soundEnabled ? 'Sound & Haptics: ON (Click to mute)' : 'Sound & Haptics: MUTED (Click to unmute)';
+                btn.classList.toggle('muted', !soundEnabled);
+            }
         }
 
         // Timer Functions

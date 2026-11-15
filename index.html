@@ -24,11 +24,11 @@
             --cell-alt: #141f36;
             --cell-selected: #334155;
             --cell-highlight: #1e3a8a55;
-            --given-color: #e2e8f0;
-            --input-color: #60a5fa;
+            --given-color: #f8fafc;
+            --input-color: #34d399;
             --grid-line-thick: #f8fafc;
             --grid-line-thin: #334155;
-            --notes-corner: #cbd5e1;
+            --notes-corner: #94a3b8;
             --notes-center: #38bdf8;
             
             /* Highlighting Colors */
@@ -53,10 +53,10 @@
             --cell-selected: #e2e8f0;
             --cell-highlight: #bfdbfe77;
             --given-color: #0f172a;
-            --input-color: #2563eb;
+            --input-color: #059669;
             --grid-line-thick: #0f172a;
             --grid-line-thin: #cbd5e1;
-            --notes-corner: #475569;
+            --notes-corner: #64748b;
             --notes-center: #0284c7;
             
             /* Highlighting Colors */
@@ -466,7 +466,17 @@
 
         .cell.user-input .cell-val {
             color: var(--input-color);
-            font-weight: 600;
+            font-weight: 700;
+        }
+
+        .cell.user-input.matching-digit .cell-val {
+            color: var(--input-color) !important;
+            text-shadow: 0 0 10px rgba(52, 211, 153, 0.7);
+        }
+
+        [data-theme="light"] .cell.user-input.matching-digit .cell-val {
+            color: var(--input-color) !important;
+            text-shadow: none;
         }
 
         .cell.selected {
@@ -507,7 +517,7 @@
             padding: 1px 2px;
             font-size: 0.65rem;
             line-height: 1;
-            color: #cbd5e1;
+            color: var(--notes-corner);
             pointer-events: none;
             z-index: 2;
         }
@@ -531,7 +541,7 @@
             font-size: 0.72rem;
             font-weight: 700;
             line-height: 1;
-            color: #38bdf8;
+            color: var(--notes-center);
             pointer-events: none;
             letter-spacing: 0.5px;
             z-index: 3;

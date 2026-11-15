@@ -909,20 +909,41 @@
             cursor: pointer;
         }
 
+        /* Congratulations Banner */
+        .congrats-banner {
+            width: 100%;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(59, 130, 246, 0.22));
+            border: 1.5px solid #10b981;
+            border-radius: 8px;
+            color: #10b981;
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+            animation: popIn 0.35s ease;
+        }
+
         /* Victory Modal */
         .modal-backdrop {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(4px);
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10000;
+            z-index: 99999;
             padding: 16px;
+            box-sizing: border-box;
         }
 
         .modal-card {
@@ -1069,6 +1090,8 @@
             <span id="sticky-status" style="display:none; color: #60a5fa; border-color: rgba(96, 165, 250, 0.4); font-weight: 600;"></span>
             <span id="error-status" style="display:none; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); font-weight: 600;"></span>
         </div>
+
+        <div id="congrats-banner" class="congrats-banner" style="display:none;">🎉 Congratulations! Puzzle Solved!</div>
 
         <div class="game-content-layout">
             <!-- 9x9 Sudoku Board -->
@@ -2077,6 +2100,10 @@
             const cluesEl = document.getElementById('clues-label');
             if (cluesEl) cluesEl.innerText = clueCount || board.filter(c => c !== 0).length;
 
+            closeVictoryModal();
+            const congratsBanner = document.getElementById('congrats-banner');
+            if (congratsBanner) congratsBanner.style.display = 'none';
+
             updateBoardDOM();
             updateKeypadCounts();
         }
@@ -2084,38 +2111,82 @@
         // Victory Check & Celebration Confetti
         function checkVictory() {
             if (gameFinished) return;
-            // Check if board full
-            const isFull = board.every(val => val >= 1 && val <= 9);
+
+            // 1. Check if all 81 cells are filled (non-zero)
+            const isFull = board.every(val => Number(val) >= 1 && Number(val) <= 9);
             if (!isFull) return;
 
-            const errorCells = getErrorCells();
-            if (errorCells.size > 0) return;
+            // 2. Check for Sudoku rule conflicts (row, column, or 3x3 block duplicates)
+            let hasConflicts = false;
+            for (let i = 0; i < 81; i++) {
+                const val = Number(board[i]);
+                const r = Math.floor(i / 9);
+                const c = i % 9;
+                const br = Math.floor(r / 3) * 3;
+                const bc = Math.floor(c / 3) * 3;
 
-            // VICTORY!
+                for (let j = i + 1; j < 81; j++) {
+                    if (Number(board[j]) !== val) continue;
+                    const r2 = Math.floor(j / 9);
+                    const c2 = j % 9;
+                    const br2 = Math.floor(r2 / 3) * 3;
+                    const bc2 = Math.floor(c2 / 3) * 3;
+
+                    if (r === r2 || c === c2 || (br === br2 && bc === bc2)) {
+                        hasConflicts = true;
+                        break;
+                    }
+                }
+                if (hasConflicts) break;
+            }
+
+            if (hasConflicts) return;
+
+            // VICTORY CONFIRMED!
             gameFinished = true;
             clearInterval(timerInterval);
-            playWinFanfare();
-            fireConfetti();
 
-            // Check Best Time
-            const currentBest = localStorage.getItem('sudoku-best-' + currentDifficulty);
-            let isNewBest = false;
-            if (!currentBest || timerSeconds < parseInt(currentBest)) {
-                localStorage.setItem('sudoku-best-' + currentDifficulty, timerSeconds.toString());
-                isNewBest = true;
-            }
-            updateBestTimeDisplay();
-
-            // Show Victory Modal
+            // 1. Show Victory Modal with prominent Congratulations
             const modal = document.getElementById('victory-modal');
             const diffEl = document.getElementById('victory-diff');
             const timeEl = document.getElementById('victory-time');
             const recEl = document.getElementById('victory-record');
 
-            if (diffEl) diffEl.innerText = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
+            const diffName = currentDifficulty ? (currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1)) : 'Medium';
+            if (diffEl) diffEl.innerText = diffName;
             if (timeEl) timeEl.innerText = formatTime(timerSeconds);
+
+            let isNewBest = false;
+            try {
+                const currentBest = localStorage.getItem('sudoku-best-' + currentDifficulty);
+                if (!currentBest || timerSeconds < parseInt(currentBest)) {
+                    localStorage.setItem('sudoku-best-' + currentDifficulty, timerSeconds.toString());
+                    isNewBest = true;
+                }
+                updateBestTimeDisplay();
+            } catch(e) {}
+
             if (recEl) recEl.style.display = isNewBest ? 'block' : 'none';
-            if (modal) modal.style.display = 'flex';
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+
+            // 2. Also show in-page Congratulations banner
+            const congratsBanner = document.getElementById('congrats-banner');
+            if (congratsBanner) {
+                congratsBanner.style.display = 'block';
+                congratsBanner.innerText = `🎉 Congratulations! Puzzle Solved in ${formatTime(timerSeconds)}!`;
+            }
+
+            // 3. Play victory fanfare
+            try {
+                playWinFanfare();
+            } catch(e) {}
+
+            // 4. Fire celebration confetti
+            try {
+                fireConfetti();
+            } catch(e) {}
         }
 
         function closeVictoryModal() {
@@ -2193,7 +2264,14 @@
             selectedCell = null;
             selectedCells.clear();
             stickyNumber = null;
+            undoStack = [];
+            redoStack = [];
+            updateUndoRedoBtns();
             updateStickyUI();
+            resetTimer();
+            closeVictoryModal();
+            const congratsBanner = document.getElementById('congrats-banner');
+            if (congratsBanner) congratsBanner.style.display = 'none';
             updateBoardDOM();
             updateKeypadCounts();
         }
@@ -2543,8 +2621,8 @@
     <!-- Victory Celebration Modal -->
     <div id="victory-modal" class="modal-backdrop" style="display:none;">
         <div class="modal-card">
-            <h2>🎉 Puzzle Solved!</h2>
-            <p>Congratulations, you completed the grid!</p>
+            <h2>🎉 Congratulations!</h2>
+            <p style="font-size: 1.05rem; margin-top: 4px; font-weight: 600; color: #10b981;">Puzzle Successfully Solved!</p>
             <div class="modal-stats">
                 <div>Difficulty: <strong id="victory-diff">Medium</strong></div>
                 <div>Time: <strong id="victory-time">00:00</strong></div>

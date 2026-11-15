@@ -58,9 +58,10 @@
         .controls-bar {
             display: flex;
             gap: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
             justify-content: center;
+            width: 100%;
         }
 
         select, button {
@@ -70,8 +71,8 @@
             padding: 8px 14px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.2s;
+            font-size: 0.85rem;
+            transition: all 0.2s;
         }
 
         button:hover, select:hover {
@@ -95,6 +96,23 @@
             width: 100%;
         }
 
+        .mode-indicators {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 0.82rem;
+            color: #94a3b8;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mode-indicators span {
+            padding: 3px 10px;
+            border-radius: 4px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+        }
+
         .board {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
@@ -103,7 +121,7 @@
             border: 3px solid var(--text-color);
             background-color: var(--text-color);
             gap: 1px;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
         }
 
         .cell {
@@ -111,21 +129,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
-            font-weight: 500;
             cursor: pointer;
             user-select: none;
             position: relative;
             transition: background-color 0.1s;
         }
 
-        .cell.given {
+        /* Scaled slightly smaller for a clean, non-crowded appearance */
+        .cell .cell-val {
+            font-size: 1.15rem;
+            font-weight: 600;
+            line-height: 1;
+            z-index: 5;
+        }
+
+        .cell.given .cell-val {
             color: var(--given-color);
             font-weight: 700;
         }
 
-        .cell.user-input {
+        .cell.user-input .cell-val {
             color: var(--input-color);
+            font-weight: 600;
         }
 
         .cell.selected {
@@ -148,7 +173,8 @@
         .cell:nth-child(n-19):nth-child(-n-27),
         .cell:nth-child(n-46):nth-child(-n-54) { border-bottom: 2px solid var(--text-color); }
 
-        .notes-grid {
+        /* Snyder (Corner/Edge) Notes Grid (3x3) */
+        .corner-notes-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
@@ -157,47 +183,51 @@
             position: absolute;
             top: 0;
             left: 0;
-            padding: 2px;
-            font-size: 0.45rem;
+            padding: 1px 2px;
+            font-size: 0.5rem;
+            line-height: 1;
             color: #94a3b8;
             pointer-events: none;
+            z-index: 2;
         }
 
-        .note-cell {
+        .corner-note-cell {
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 500;
         }
 
-        .mode-indicators {
+        /* Middle (Center) Notes Cluster */
+        .center-notes {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
-            color: #94a3b8;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.58rem;
+            font-weight: 600;
+            line-height: 1;
+            color: #38bdf8;
+            pointer-events: none;
+            letter-spacing: 0.5px;
+            z-index: 3;
+            max-width: 90%;
+            text-align: center;
+            word-break: break-all;
         }
 
-        .mode-indicators span {
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-        }
-
-        .mode-indicators span.active-mode {
-            border-color: var(--accent-color);
-            color: var(--text-color);
-        }
-
-        /* Keypad & Color Palette */
+        /* Keypad Container */
         .keypad-container {
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 5px;
+            gap: 10px;
         }
 
+        /* 5x2 Keypad Grid (1-5, 6-9, Erase) */
         .keypad {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -258,16 +288,125 @@
             color: #fca5a5;
         }
 
+        /* Notes Controls Panel Directly Under Numbers */
+        .notes-controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 10px;
+            box-sizing: border-box;
+        }
+
+        .mode-toggle-group {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 7px 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border-radius: 6px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .mode-btn:hover {
+            color: var(--text-color);
+            border-color: #64748b;
+        }
+
+        .mode-btn.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .note-type-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(71, 85, 105, 0.4);
+        }
+
+        .note-type-toggle .sub-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .pill-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .pill-toggle-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: #94a3b8;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+
+        .pill-toggle-btn .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #64748b;
+        }
+
+        .pill-toggle-btn:hover {
+            color: var(--text-color);
+            border-color: #64748b;
+        }
+
+        .pill-toggle-btn.active {
+            background: #1e3a8a;
+            border-color: #3b82f6;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .pill-toggle-btn.active .dot {
+            background: #60a5fa;
+            box-shadow: 0 0 6px #60a5fa;
+        }
+
+        /* Color Palette */
         .palette {
             display: flex;
             gap: 8px;
             justify-content: center;
-            margin-top: 5px;
+            align-items: center;
+            margin-top: 2px;
         }
 
         .color-btn {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             border: 2px solid var(--border-color);
             cursor: pointer;
@@ -275,7 +414,7 @@
         }
 
         .color-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
         }
 
         .color-btn.yellow { background-color: var(--color-yellow); }
@@ -300,23 +439,48 @@
                 <option value="hard">Hard</option>
                 <option value="expert">Expert</option>
             </select>
-            <button onclick="toggleMode('number')" id="mode-num-btn" class="active">Number Mode</button>
-            <button onclick="toggleMode('note')" id="mode-note-btn">Pencil Notes</button>
-            <button onclick="toggleMode('color')" id="mode-color-btn">Color Mode</button>
-            <button onclick="clearSelection()">Clear</button>
+            <button onclick="newGame()">New Game</button>
+            <button onclick="toggleMode('color')" id="mode-color-btn">Highlight Color</button>
+            <button onclick="restartGame()">Reset</button>
         </div>
 
         <div class="mode-indicators">
-            <span>Mode: <strong id="current-mode-label">Number</strong></span>
-            <span>Active Color: <strong id="current-color-label">None</strong></span>
+            <span>Input: <strong id="current-mode-label">Normal (Numbers)</strong></span>
+            <span>Highlight: <strong id="current-color-label">None</strong></span>
         </div>
 
+        <!-- 9x9 Sudoku Board -->
         <div class="board" id="sudoku-board"></div>
 
         <div class="keypad-container">
-            <div class="keypad" id="keypad">
-                <!-- Generated via JS with remaining count -->
+            <!-- 5x2 Keypad: 1-5 top row, 6-9 + Erase bottom row -->
+            <div class="keypad" id="keypad"></div>
+
+            <!-- Pencil Notes Option Directly Under Actual Numbers -->
+            <div class="notes-controls-panel">
+                <div class="mode-toggle-group">
+                    <button id="btn-mode-number" class="mode-btn active" onclick="setInputMode('number')">
+                        <span>🔢</span> Normal Numbers
+                    </button>
+                    <button id="btn-mode-note" class="mode-btn" onclick="setInputMode('note')">
+                        <span>✏️</span> Pencil Notes
+                    </button>
+                </div>
+
+                <div class="note-type-toggle">
+                    <span class="sub-label">Notes Type:</span>
+                    <div class="pill-group">
+                        <button id="pill-snyder" class="pill-toggle-btn active" onclick="setNoteStyle('snyder')" title="Snyder notation (corner/edge marks)">
+                            <span class="dot"></span> Snyder (Corner)
+                        </button>
+                        <button id="pill-middle" class="pill-toggle-btn" onclick="setNoteStyle('middle')" title="Center/middle candidate notes">
+                            <span class="dot"></span> Middle (Center)
+                        </button>
+                    </div>
+                </div>
             </div>
+
+            <!-- Chain / Cell Highlighting Palette -->
             <div class="palette">
                 <div class="color-btn yellow" onclick="selectColor('yellow')" title="Highlight Yellow"></div>
                 <div class="color-btn green" onclick="selectColor('green')" title="Highlight Green"></div>
@@ -330,16 +494,18 @@
 
     <script>
         let board = Array(81).fill(0);
+        let initialBoard = Array(81).fill(0);
         let solution = Array(81).fill(0);
         let given = Array(81).fill(false);
-        let notes = Array(81).fill().map(() => new Set());
+        let snyderNotes = Array(81).fill().map(() => new Set());
+        let middleNotes = Array(81).fill().map(() => new Set());
         let colors = Array(81).fill(null);
         
         let selectedCell = null;
         let inputMode = 'number'; // 'number', 'note', 'color'
+        let noteStyle = 'snyder'; // 'snyder', 'middle'
         let activeColor = 'yellow';
 
-        // Color map hex values for backgrounds
         const colorHexMap = {
             'yellow': 'var(--color-yellow)',
             'green': 'var(--color-green)',
@@ -352,7 +518,7 @@
             easy: "530070000600195000098000060800060003400803001700020006060000280000419005000080079",
             medium: "000260701680070090190004500820100040004602900050003028009300074040050036703018000",
             hard: "000000000000003085001020000000507000004001020020000000000004027500000000000000000",
-            expert: "000000000000030850010200000000507000004001020020000000000004027500000000000000000" // Fallback sample
+            expert: "000000000000030850010200000000507000004001020020000000000004027500000000000000000"
         };
 
         function initGame() {
@@ -370,15 +536,22 @@
                 cell.dataset.index = i;
                 cell.addEventListener('click', () => selectCellIndex(i));
                 
-                const notesGrid = document.createElement('div');
-                notesGrid.className = 'notes-grid';
+                // Corner / Snyder Notes Grid (3x3)
+                const cornerGrid = document.createElement('div');
+                cornerGrid.className = 'corner-notes-grid';
                 for (let n = 1; n <= 9; n++) {
                     const noteCell = document.createElement('div');
-                    noteCell.className = 'note-cell';
+                    noteCell.className = 'corner-note-cell';
                     noteCell.dataset.note = n;
-                    notesGrid.appendChild(noteCell);
+                    cornerGrid.appendChild(noteCell);
                 }
-                cell.appendChild(notesGrid);
+                cell.appendChild(cornerGrid);
+
+                // Center / Middle Notes Cluster
+                const centerNotes = document.createElement('div');
+                centerNotes.className = 'center-notes';
+                cell.appendChild(centerNotes);
+
                 boardEl.appendChild(cell);
             }
         }
@@ -397,7 +570,7 @@
             const eraseBtn = document.createElement('button');
             eraseBtn.className = 'key-btn erase-btn';
             eraseBtn.innerHTML = `<span class="num">⌫</span><span class="count">Erase</span>`;
-            eraseBtn.title = "Erase number / notes";
+            eraseBtn.title = "Erase number / notes (Backspace)";
             eraseBtn.addEventListener('click', clearSelection);
             keypadEl.appendChild(eraseBtn);
         }
@@ -406,14 +579,25 @@
             const diff = document.getElementById('difficulty').value;
             let sample = puzzles[diff] || puzzles.medium;
             
-            // Simple parser for seed puzzle string
             board = sample.split('').map(Number);
+            initialBoard = [...board];
             given = board.map(val => val !== 0);
-            solution = [...board]; // Placeholder solution sync
-            notes = Array(81).fill().map(() => new Set());
+            solution = [...board];
+            snyderNotes = Array(81).fill().map(() => new Set());
+            middleNotes = Array(81).fill().map(() => new Set());
             colors = Array(81).fill(null);
             selectedCell = null;
             
+            updateBoardDOM();
+            updateKeypadCounts();
+        }
+
+        function restartGame() {
+            board = [...initialBoard];
+            snyderNotes = Array(81).fill().map(() => new Set());
+            middleNotes = Array(81).fill().map(() => new Set());
+            colors = Array(81).fill(null);
+            selectedCell = null;
             updateBoardDOM();
             updateKeypadCounts();
         }
@@ -423,33 +607,80 @@
             updateBoardDOM();
         }
 
-        function toggleMode(mode) {
+        function setInputMode(mode) {
             inputMode = mode;
-            document.getElementById('mode-num-btn').classList.toggle('active', mode === 'number');
-            document.getElementById('mode-note-btn').classList.toggle('active', mode === 'note');
-            document.getElementById('mode-color-btn').classList.toggle('active', mode === 'color');
-            document.getElementById('current-mode-label').innerText = mode.charAt(0).toUpperCase() + mode.slice(1);
+            document.getElementById('btn-mode-number').classList.toggle('active', mode === 'number');
+            document.getElementById('btn-mode-note').classList.toggle('active', mode === 'note');
+            document.getElementById('mode-color-btn').classList.remove('active');
+            updateIndicatorLabel();
+        }
+
+        function setNoteStyle(style) {
+            noteStyle = style;
+            setInputMode('note');
+            document.getElementById('pill-snyder').classList.toggle('active', style === 'snyder');
+            document.getElementById('pill-middle').classList.toggle('active', style === 'middle');
+            updateIndicatorLabel();
+        }
+
+        function toggleMode(mode) {
+            if (mode === 'color') {
+                inputMode = (inputMode === 'color') ? 'number' : 'color';
+                document.getElementById('mode-color-btn').classList.toggle('active', inputMode === 'color');
+                if (inputMode === 'number') {
+                    setInputMode('number');
+                }
+                updateIndicatorLabel();
+            }
         }
 
         function selectColor(color) {
             activeColor = color;
             inputMode = 'color';
-            toggleMode('color');
-            document.getElementById('current-color-label').innerText = color ? color.toUpperCase() : 'None';
+            document.getElementById('mode-color-btn').classList.add('active');
+            document.getElementById('btn-mode-number').classList.remove('active');
+            document.getElementById('btn-mode-note').classList.remove('active');
+            
+            if (selectedCell !== null) {
+                colors[selectedCell] = color;
+                updateBoardDOM();
+            }
+            updateIndicatorLabel();
+        }
+
+        function updateIndicatorLabel() {
+            let label = 'Normal (Numbers)';
+            if (inputMode === 'note') {
+                label = noteStyle === 'snyder' ? 'Pencil Notes: Snyder (Corner)' : 'Pencil Notes: Middle (Center)';
+            } else if (inputMode === 'color') {
+                label = 'Color Highlighting';
+            }
+            document.getElementById('current-mode-label').innerText = label;
+            document.getElementById('current-color-label').innerText = activeColor ? activeColor.toUpperCase() : 'None';
         }
 
         function handleKeyInput(num) {
             if (selectedCell === null || given[selectedCell]) return;
 
             if (inputMode === 'number') {
-                board[selectedCell] = board[selectedCell] === num ? 0 : num;
-                notes[selectedCell].clear(); // Clear notes when entering digit
+                board[selectedCell] = (board[selectedCell] === num) ? 0 : num;
+                // Clear pencil notes when placing actual digit
+                snyderNotes[selectedCell].clear();
+                middleNotes[selectedCell].clear();
             } else if (inputMode === 'note') {
                 if (board[selectedCell] === 0) {
-                    if (notes[selectedCell].has(num)) {
-                        notes[selectedCell].delete(num);
-                    } else {
-                        notes[selectedCell].add(num);
+                    if (noteStyle === 'snyder') {
+                        if (snyderNotes[selectedCell].has(num)) {
+                            snyderNotes[selectedCell].delete(num);
+                        } else {
+                            snyderNotes[selectedCell].add(num);
+                        }
+                    } else if (noteStyle === 'middle') {
+                        if (middleNotes[selectedCell].has(num)) {
+                            middleNotes[selectedCell].delete(num);
+                        } else {
+                            middleNotes[selectedCell].add(num);
+                        }
                     }
                 }
             }
@@ -462,8 +693,12 @@
             if (inputMode === 'color') {
                 colors[selectedCell] = null;
             } else {
-                board[selectedCell] = 0;
-                notes[selectedCell].clear();
+                if (board[selectedCell] !== 0) {
+                    board[selectedCell] = 0;
+                } else {
+                    snyderNotes[selectedCell].clear();
+                    middleNotes[selectedCell].clear();
+                }
             }
             updateBoardDOM();
             updateKeypadCounts();
@@ -472,14 +707,12 @@
         function updateBoardDOM() {
             const cells = document.querySelectorAll('.cell');
             cells.forEach((cell, i) => {
-                // Reset classes
                 cell.className = 'cell';
                 if (given[i]) cell.classList.add('given');
                 else if (board[i] !== 0) cell.classList.add('user-input');
                 
                 if (i === selectedCell) cell.classList.add('selected');
 
-                // Apply coloring
                 if (colors[i]) {
                     cell.style.backgroundColor = colorHexMap[colors[i]];
                     cell.style.color = '#0f172a';
@@ -488,19 +721,35 @@
                     cell.style.color = '';
                 }
 
-                // Render Value or Notes
-                const valueSpan = cell.querySelector('.cell-val') || document.createElement('span');
-                valueSpan.className = 'cell-val';
+                // Render Main Value
+                let valueSpan = cell.querySelector('.cell-val');
+                if (!valueSpan) {
+                    valueSpan = document.createElement('span');
+                    valueSpan.className = 'cell-val';
+                    cell.appendChild(valueSpan);
+                }
                 valueSpan.innerText = board[i] !== 0 ? board[i] : '';
-                if (!cell.contains(valueSpan)) cell.appendChild(valueSpan);
 
-                // Render Notes
-                const notesGrid = cell.querySelector('.notes-grid');
-                const noteCells = notesGrid.querySelectorAll('.note-cell');
-                noteCells.forEach(nc => {
-                    const n = parseInt(nc.dataset.note);
-                    nc.innerText = (board[i] === 0 && notes[i].has(n)) ? n : '';
-                });
+                // Render Snyder (Corner/Edge) Notes
+                const cornerGrid = cell.querySelector('.corner-notes-grid');
+                if (cornerGrid) {
+                    const noteCells = cornerGrid.querySelectorAll('.corner-note-cell');
+                    noteCells.forEach(nc => {
+                        const n = parseInt(nc.dataset.note);
+                        nc.innerText = (board[i] === 0 && snyderNotes[i].has(n)) ? n : '';
+                    });
+                }
+
+                // Render Middle (Center) Notes
+                const centerEl = cell.querySelector('.center-notes');
+                if (centerEl) {
+                    if (board[i] === 0 && middleNotes[i].size > 0) {
+                        const sortedNotes = Array.from(middleNotes[i]).sort((a, b) => a - b);
+                        centerEl.innerText = sortedNotes.join(' ');
+                    } else {
+                        centerEl.innerText = '';
+                    }
+                }
             });
         }
 
@@ -519,12 +768,30 @@
             }
         }
 
-        // Handle physical keyboard input
+        // Physical keyboard support
         window.addEventListener('keydown', (e) => {
             if (e.key >= '1' && e.key <= '9') {
                 handleKeyInput(parseInt(e.key));
             } else if (e.key === 'Backspace' || e.key === 'Delete') {
                 clearSelection();
+            } else if (e.key === 'n' || e.key === 'N') {
+                setInputMode(inputMode === 'number' ? 'note' : 'number');
+            } else if (e.key === 's' || e.key === 'S') {
+                setNoteStyle('snyder');
+            } else if (e.key === 'm' || e.key === 'M') {
+                setNoteStyle('middle');
+            } else if (selectedCell !== null) {
+                const row = Math.floor(selectedCell / 9);
+                const col = selectedCell % 9;
+                if (e.key === 'ArrowUp' && row > 0) {
+                    selectCellIndex(selectedCell - 9);
+                } else if (e.key === 'ArrowDown' && row < 8) {
+                    selectCellIndex(selectedCell + 9);
+                } else if (e.key === 'ArrowLeft' && col > 0) {
+                    selectCellIndex(selectedCell - 1);
+                } else if (e.key === 'ArrowRight' && col < 8) {
+                    selectCellIndex(selectedCell + 1);
+                }
             }
         });
 

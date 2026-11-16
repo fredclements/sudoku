@@ -348,6 +348,7 @@
                 width: 98vw;
                 padding: 12px 18px;
                 max-height: 98dvh;
+                overflow-y: auto;
             }
 
             .controls-bar {
@@ -912,17 +913,18 @@
         /* Congratulations Banner */
         .congrats-banner {
             width: 100%;
-            padding: 10px 14px;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(59, 130, 246, 0.22));
-            border: 1.5px solid #10b981;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(59, 130, 246, 0.25));
+            border: 2px solid #10b981;
             border-radius: 8px;
             color: #10b981;
-            font-size: 1.05rem;
-            font-weight: 700;
+            font-size: 1.15rem;
+            font-weight: 800;
             text-align: center;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+            box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35);
             animation: popIn 0.35s ease;
+            box-sizing: border-box;
         }
 
         /* Victory Modal */
@@ -935,13 +937,13 @@
             width: 100%;
             height: 100%;
             height: 100dvh;
-            background: rgba(0, 0, 0, 0.72);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 99999;
+            z-index: 999999;
             padding: 16px;
             box-sizing: border-box;
         }
@@ -1080,6 +1082,7 @@
             <button onclick="toggleSound()" id="sound-btn" title="Toggle Sound & Haptics">🔊</button>
             <button onclick="toggleFullscreen()" id="fs-btn" title="Toggle Fullscreen for Mobile and Tablet">⛶</button>
             <button onclick="toggleTheme()" id="theme-btn" title="Toggle Light / Dark mode">☀️</button>
+            <button onclick="forceAppUpdate()" id="update-btn" title="Force refresh and clear cache to latest version (v12)" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.45); color: #10b981; font-weight: 700;">🔄 v12</button>
         </div>
 
         <div class="mode-indicators">
@@ -1087,6 +1090,7 @@
             <span>⏱️ <strong id="timer-label" style="margin-left: 4px; font-variant-numeric: tabular-nums;">00:00</strong> <button id="pause-btn" onclick="togglePause()" class="mini-icon-btn" title="Pause / Resume Timer">⏸</button></span>
             <span id="best-time-container">🏆 Best: <strong id="best-time-label" style="margin-left: 4px;">--:--</strong></span>
             <span>Input: <strong id="current-mode-label" style="margin-left: 4px;">Normal (Numbers)</strong></span>
+            <span id="build-tag" style="border-color: rgba(16, 185, 129, 0.35); color: #10b981; font-weight: 600;">Build: v12</span>
             <span id="sticky-status" style="display:none; color: #60a5fa; border-color: rgba(96, 165, 250, 0.4); font-weight: 600;"></span>
             <span id="error-status" style="display:none; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); font-weight: 600;"></span>
         </div>
@@ -1714,10 +1718,44 @@
         document.addEventListener('fullscreenchange', updateFullscreenBtn);
         document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
 
+        // Force App Update & Cache Purge for PWA (Pixel Phone & Tablet)
+        async function forceAppUpdate() {
+            const btn = document.getElementById('update-btn');
+            if (btn) btn.innerText = 'Updating...';
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const r of registrations) {
+                        await r.unregister();
+                    }
+                }
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    for (const k of keys) {
+                        await caches.delete(k);
+                    }
+                }
+            } catch (err) {
+                console.error('Error clearing cache:', err);
+            }
+            const cleanUrl = window.location.origin + window.location.pathname;
+            window.location.href = cleanUrl + '?v=' + Date.now();
+        }
+
         // Register Service Worker for PWA (Installable on Pixel Phone & Tablet)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(() => {});
+                navigator.serviceWorker.register('./sw.js?v=12', { updateViaCache: 'none' })
+                    .then(reg => {
+                        console.log('SW registered:', reg.scope);
+                        reg.update();
+                    })
+                    .catch(err => console.log('SW error:', err));
+            });
+
+            // Automatically reload when new service worker takes over
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                console.log('Service worker updated, reloading for latest features...');
             });
         }
 
@@ -2094,6 +2132,7 @@
             redoStack = [];
             updateUndoRedoBtns();
             resetTimer();
+            gameFinished = false;
 
             const levelEl = document.getElementById('level-label');
             if (levelEl) levelEl.innerText = title;
@@ -2112,11 +2151,24 @@
         function checkVictory() {
             if (gameFinished) return;
 
-            // 1. Check if all 81 cells are filled (non-zero)
-            const isFull = board.every(val => Number(val) >= 1 && Number(val) <= 9);
-            if (!isFull) return;
+            // 1. Check how many cells are filled (1-9)
+            const filledCount = board.filter(val => Number(val) >= 1 && Number(val) <= 9).length;
+            const errorStatusEl = document.getElementById('error-status');
+            const congratsBanner = document.getElementById('congrats-banner');
 
-            // 2. Check for Sudoku rule conflicts (row, column, or 3x3 block duplicates)
+            if (filledCount < 81) {
+                // If user has filled almost all cells (e.g. 76+), show progress in status
+                if (filledCount >= 76 && errorStatusEl) {
+                    errorStatusEl.style.display = 'inline-flex';
+                    errorStatusEl.style.color = '#38bdf8';
+                    errorStatusEl.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+                    const remaining = 81 - filledCount;
+                    errorStatusEl.innerText = `Almost solved! ${remaining} cell${remaining > 1 ? 's' : ''} remaining`;
+                }
+                return;
+            }
+
+            // 2. All 81 cells are filled! Check for Sudoku rule conflicts (row, column, or 3x3 block duplicates)
             let hasConflicts = false;
             for (let i = 0; i < 81; i++) {
                 const val = Number(board[i]);
@@ -2140,13 +2192,52 @@
                 if (hasConflicts) break;
             }
 
-            if (hasConflicts) return;
+            // Also check against solution
+            let hasWrongDigits = false;
+            if (solution && solution.length === 81) {
+                for (let i = 0; i < 81; i++) {
+                    if (board[i] !== solution[i]) {
+                        hasWrongDigits = true;
+                        break;
+                    }
+                }
+            }
 
-            // VICTORY CONFIRMED!
+            if (hasConflicts || hasWrongDigits) {
+                // All cells filled, but conflicts exist! Do not fail silently!
+                if (errorStatusEl) {
+                    errorStatusEl.style.display = 'inline-flex';
+                    errorStatusEl.style.color = '#ef4444';
+                    errorStatusEl.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                    errorStatusEl.innerText = `⚠️ All 81 cells filled, but there are conflicts (marked in red)!`;
+                }
+                if (congratsBanner) {
+                    congratsBanner.style.display = 'block';
+                    congratsBanner.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(245, 158, 11, 0.25))';
+                    congratsBanner.style.borderColor = '#ef4444';
+                    congratsBanner.style.color = '#ef4444';
+                    congratsBanner.innerText = `⚠️ All 81 cells are filled, but there are errors (in red). Fix them to complete!`;
+                }
+                playErrorSound();
+                return;
+            }
+
+            // VICTORY CONFIRMED! 100% correct, zero conflicts!
             gameFinished = true;
             clearInterval(timerInterval);
 
-            // 1. Show Victory Modal with prominent Congratulations
+            if (errorStatusEl) errorStatusEl.style.display = 'none';
+
+            // 1. Show In-Page Celebration Banner
+            if (congratsBanner) {
+                congratsBanner.style.display = 'block';
+                congratsBanner.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(59, 130, 246, 0.25))';
+                congratsBanner.style.borderColor = '#10b981';
+                congratsBanner.style.color = '#10b981';
+                congratsBanner.innerText = `🎉 Congratulations! Puzzle Solved in ${formatTime(timerSeconds)}!`;
+            }
+
+            // 2. Show Victory Modal with prominent Congratulations
             const modal = document.getElementById('victory-modal');
             const diffEl = document.getElementById('victory-diff');
             const timeEl = document.getElementById('victory-time');
@@ -2171,13 +2262,6 @@
                 modal.style.display = 'flex';
             }
 
-            // 2. Also show in-page Congratulations banner
-            const congratsBanner = document.getElementById('congrats-banner');
-            if (congratsBanner) {
-                congratsBanner.style.display = 'block';
-                congratsBanner.innerText = `🎉 Congratulations! Puzzle Solved in ${formatTime(timerSeconds)}!`;
-            }
-
             // 3. Play victory fanfare
             try {
                 playWinFanfare();
@@ -2187,6 +2271,15 @@
             try {
                 fireConfetti();
             } catch(e) {}
+
+            // 5. Fallback native alert so confirmation is 100% unmistakable on any tablet or browser
+            setTimeout(() => {
+                try {
+                    if (typeof alert === 'function') {
+                        alert(`🎉 Congratulations! You successfully solved the puzzle in ${formatTime(timerSeconds)}!`);
+                    }
+                } catch(e) {}
+            }, 200);
         }
 
         function closeVictoryModal() {

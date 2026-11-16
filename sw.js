@@ -1,7 +1,8 @@
-const CACHE_NAME = 'sudoku-pwa-v11';
+const CACHE_NAME = 'sudoku-pwa-v12';
 const ASSETS = [
     './',
     './index.html',
+    './sudoku.html',
     './manifest.json',
     './icon-192.png',
     './icon-512.png'
@@ -22,8 +23,24 @@ self.addEventListener('activate', e => {
     );
 });
 
-// Network-first strategy: always fetch fresh copy when online, fallback to cache when offline
+// Network-first strategy: always fetch fresh copy from server when online
 self.addEventListener('fetch', e => {
+    // If navigation (loading HTML page), always fetch network-first bypassing HTTP cache
+    if (e.request.mode === 'navigate' || e.request.destination === 'document') {
+        e.respondWith(
+            fetch(e.request, { cache: 'no-cache' })
+                .then(networkRes => {
+                    if (networkRes && networkRes.status === 200) {
+                        const clone = networkRes.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+                    }
+                    return networkRes;
+                })
+                .catch(() => caches.match(e.request).then(res => res || caches.match('./index.html')))
+        );
+        return;
+    }
+
     e.respondWith(
         fetch(e.request)
             .then(networkRes => {
